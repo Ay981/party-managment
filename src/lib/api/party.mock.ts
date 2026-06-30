@@ -37,6 +37,7 @@ import { PartyCodePrefix, PaymentTerms, RiskLevel } from '@/types/party.types'
  * Value is CompanyParty[] serialized as JSON.
  */
 const STORAGE_KEY = 'erp_parties'
+const DEMO_PARTY_COUNT = 48
 
 
 // ─── Simulated Network Delay ──────────────────────────────────────────────────
@@ -581,109 +582,151 @@ export async function deleteCompanyParty(
 
 // ─── Dev Utility — Seed Data ──────────────────────────────────────────────────
 
+const demoNamePrefixes = [
+  'Addis',
+  'Nile',
+  'Horn',
+  'Merkato',
+  'Sheba',
+  'Abyssinia',
+  'Ethio',
+  'Bole',
+  'Rift',
+  'Blue Nile',
+  'Unity',
+  'Capital',
+]
+
+const demoNameSuffixes = [
+  'Trading Co.',
+  'Supplies PLC',
+  'Logistics Ltd.',
+  'Manufacturing',
+  'Foods Enterprise',
+  'Textiles',
+  'Construction',
+  'Pharma Distribution',
+]
+
+const demoContacts = [
+  'Aymen Abdulber',
+  'Sara Tesfaye',
+  'Dawit Haile',
+  'Mekdes Alemu',
+  'Yonatan Bekele',
+  'Hana Girma',
+  'Samuel Tadesse',
+  'Liya Kebede',
+  'Fitsum Getachew',
+  'Rahel Mohammed',
+  'Natnael Mulugeta',
+  'Selamawit Abebe',
+]
+
+const demoAreas = [
+  'Bole, Addis Ababa',
+  'Piazza, Addis Ababa',
+  'CMC, Addis Ababa',
+  'Kazanchis, Addis Ababa',
+  'Sarbet, Addis Ababa',
+  'Megenagna, Addis Ababa',
+  'Mexico, Addis Ababa',
+  'Lideta, Addis Ababa',
+]
+
+const demoServices = [
+  'Office and IT supplies',
+  'Freight and warehousing',
+  'Facility maintenance',
+  'Packaging materials',
+  'Raw material sourcing',
+  'Professional services',
+  'Distribution and delivery',
+  'Equipment rental',
+]
+
+function buildDemoParty(companyId: string, index: number, nowMs: number): CompanyParty {
+  const sequence = index + 1
+  const role = index % 3
+  const isCustomer = role !== 1
+  const isVendor = role !== 0
+  const isActive = index % 9 !== 7
+  const prefix =
+    isCustomer && isVendor
+      ? PartyCodePrefix.BOTH
+      : isCustomer
+      ? PartyCodePrefix.CUSTOMER
+      : PartyCodePrefix.VENDOR
+
+  const namePrefix = demoNamePrefixes[index % demoNamePrefixes.length]
+  const nameSuffix = demoNameSuffixes[index % demoNameSuffixes.length]
+  const branch = Math.floor(index / demoNamePrefixes.length) + 1
+  const partyName = `${namePrefix} ${nameSuffix}${branch > 1 ? ` ${branch}` : ''}`
+  const slug = partyName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+  const timestamp = new Date(nowMs - index * 24 * 60 * 60 * 1000).toISOString()
+
+  return {
+    id:          crypto.randomUUID(),
+    companyId,
+    partyCode:   `${prefix}-${String(sequence).padStart(5, '0')}`,
+    partyName,
+    contactName: demoContacts[index % demoContacts.length],
+    tin:          String(7000000000 + sequence),
+    phone:        `+251911${String(100000 + sequence).slice(-6)}`,
+    email:        `${slug}@demo.local`,
+    address:      demoAreas[index % demoAreas.length],
+    isCustomer,
+    isVendor,
+    isActive,
+    customerProfile: isCustomer
+      ? {
+          creditLimit:        25000 + (index % 8) * 15000,
+          paymentTerms:       [PaymentTerms.CASH, PaymentTerms.DAYS_30, PaymentTerms.DAYS_60][index % 3],
+          riskLevel:          [RiskLevel.LOW, RiskLevel.MEDIUM, RiskLevel.HIGH][index % 3],
+          usesWithholdingTax: index % 2 === 0,
+          receivableAccount:  MOCK_RECEIVABLE_ACCOUNTS[index % MOCK_RECEIVABLE_ACCOUNTS.length],
+          status:             isActive,
+        }
+      : null,
+    vendorProfile: isVendor
+      ? {
+          serviceDescription: demoServices[index % demoServices.length],
+          usesWithholdingTax: index % 2 !== 0,
+          paymentTerms:       [PaymentTerms.CASH, PaymentTerms.DAYS_30, PaymentTerms.ADVANCE_PAYMENT][index % 3],
+          payableAccount:     MOCK_PAYABLE_ACCOUNTS[index % MOCK_PAYABLE_ACCOUNTS.length],
+          status:             isActive,
+        }
+      : null,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    deletedAt: null,
+  }
+}
+
 /**
- * Seeds localStorage with sample party records for development.
- * Call this from a dev-only page or browser console:
- *
- *   import { seedParties } from '@/lib/api/party.mock'
- *   seedParties('company-abc')
- *
- * Only seeds if localStorage is currently empty — won't overwrite real data.
+ * Seeds localStorage with demo party records for one company.
+ * Returns the number of records added. Existing visible company data is left alone.
  */
-export function seedParties(companyId: string): void {
-  if (readParties().length > 0) {
-    console.info('[mock] Seed skipped — data already exists.')
-    return
+export function seedParties(companyId: string): number {
+  const parties = readParties()
+  const hasCompanyParties = parties.some(
+    p => p.companyId === companyId && !p.deletedAt
+  )
+
+  if (hasCompanyParties) {
+    console.info(`[mock] Seed skipped - company ${companyId} already has parties.`)
+    return 0
   }
 
-  const now = new Date().toISOString()
+  const nowMs = Date.now()
+  const seed = Array.from({ length: DEMO_PARTY_COUNT }, (_, index) =>
+    buildDemoParty(companyId, index, nowMs)
+  )
 
-  const seed: CompanyParty[] = [
-    {
-      id:          crypto.randomUUID(),
-      companyId,
-      partyCode:   'CUST-00001',
-      partyName:   'Addis Trading Co.',
-      contactName: 'Aymen Abdulber',
-      tin:          '1234567890',
-      phone:        '+251911000001',
-      email:        'contact@addistrading.et',
-      address:      'Bole, Addis Ababa',
-      isCustomer:   true,
-      isVendor:     false,
-      isActive:     true,
-      customerProfile: {
-        creditLimit:        50000,
-        paymentTerms:       PaymentTerms.DAYS_30,
-        riskLevel:          RiskLevel.LOW,
-        usesWithholdingTax: true,
-        receivableAccount:  MOCK_GL_ACCOUNTS[0],
-        status:             true,
-      },
-      vendorProfile: null,
-      createdAt:   now,
-      updatedAt:   now,
-      deletedAt:   null,
-    },
-    {
-      id:          crypto.randomUUID(),
-      companyId,
-      partyCode:   'VEND-00002',
-      partyName:   'Nile Supplies Ltd.',
-      contactName: 'Sara Tesfaye',
-      tin:          '0987654321',
-      phone:        '+251922000002',
-      email:        'info@nilesupplies.et',
-      address:      'Piazza, Addis Ababa',
-      isCustomer:   false,
-      isVendor:     true,
-      isActive:     true,
-      customerProfile: null,
-      vendorProfile: {
-        serviceDescription: 'Office and IT supplies',
-        usesWithholdingTax: false,
-        paymentTerms:       PaymentTerms.CASH,
-        payableAccount:     MOCK_GL_ACCOUNTS[2],
-        status:             true,
-      },
-      createdAt:   now,
-      updatedAt:   now,
-      deletedAt:   null,
-    },
-    {
-      id:          crypto.randomUUID(),
-      companyId,
-      partyCode:   'PARTY-00003',
-      partyName:   'Horn Logistics PLC',
-      contactName: 'Dawit Haile',
-      tin:          '1122334455',
-      phone:        '+251933000003',
-      email:        'ops@hornlogistics.et',
-      address:      'CMC, Addis Ababa',
-      isCustomer:   true,
-      isVendor:     true,
-      isActive:     false,
-      customerProfile: {
-        creditLimit:        100000,
-        paymentTerms:       PaymentTerms.DAYS_60,
-        riskLevel:          RiskLevel.MEDIUM,
-        usesWithholdingTax: true,
-        receivableAccount:  MOCK_GL_ACCOUNTS[1],
-        status:             false,
-      },
-      vendorProfile: {
-        serviceDescription: 'Freight and warehousing',
-        usesWithholdingTax: true,
-        paymentTerms:       PaymentTerms.DAYS_30,
-        payableAccount:     MOCK_GL_ACCOUNTS[3],
-        status:             false,
-      },
-      createdAt:   now,
-      updatedAt:   now,
-      deletedAt:   null,
-    },
-  ]
-
-  writeParties(seed)
+  writeParties([...parties, ...seed])
   console.info(`[mock] Seeded ${seed.length} parties for company ${companyId}.`)
+  return seed.length
 }

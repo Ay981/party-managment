@@ -19,7 +19,7 @@
 'use client'
 
 import { format } from 'date-fns'
-import { ArrowUpDown, Users } from 'lucide-react'
+import { ArrowUpDown, Database, Users } from 'lucide-react'
 
 import { cn }               from '@/lib/utils'
 import { PartyStatusBadge } from '../shared/PartyStatusBadge'
@@ -55,7 +55,15 @@ function SkeletonRow() {
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
-function EmptyState({ hasFilters }: { hasFilters: boolean }) {
+function EmptyState({
+  hasFilters,
+  onSeedDemo,
+  isSeedingDemo = false,
+}: {
+  hasFilters: boolean
+  onSeedDemo?: () => void
+  isSeedingDemo?: boolean
+}) {
   const { resetFilters } = usePartyStore()
 
   return (
@@ -86,6 +94,29 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
             >
               Clear filters
             </button>
+          )}
+
+          {!hasFilters && onSeedDemo && (
+            <div className="mt-1 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={onSeedDemo}
+                disabled={isSeedingDemo}
+                className={cn(
+                  'inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold shadow-sm',
+                  'border-amber-200 bg-white text-zinc-900 hover:bg-amber-50',
+                  'disabled:cursor-not-allowed disabled:opacity-60',
+                  'dark:border-amber-500/30 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-amber-500/10',
+                  'transition-colors duration-150',
+                )}
+              >
+                <Database className="h-3.5 w-3.5 text-amber-600 dark:text-amber-300" strokeWidth={2} aria-hidden />
+                {isSeedingDemo ? 'Seeding demo...' : 'Seed demo'}
+              </button>
+              <p className="max-w-xs text-xs text-amber-700 dark:text-amber-300">
+                Demo only: adds sample parties to this browser for the current company.
+              </p>
+            </div>
           )}
         </div>
       </td>
@@ -204,6 +235,8 @@ interface PartyTableProps {
   isLoading:  boolean
   isFetching: boolean
   hasFilters: boolean
+  onSeedDemo?: () => void
+  isSeedingDemo?: boolean
 }
 
 export function PartyTable({
@@ -212,6 +245,8 @@ export function PartyTable({
   isLoading,
   isFetching,
   hasFilters,
+  onSeedDemo,
+  isSeedingDemo = false,
 }: PartyTableProps) {
   const companyId = useAuthStore(selectCompanyId) ?? ''
 
@@ -257,7 +292,13 @@ export function PartyTable({
           <tbody className="divide-y divide-zinc-100 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
             {isLoading && Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
 
-            {!isLoading && parties.length === 0 && <EmptyState hasFilters={hasFilters} />}
+            {!isLoading && parties.length === 0 && (
+              <EmptyState
+                hasFilters={hasFilters}
+                onSeedDemo={onSeedDemo}
+                isSeedingDemo={isSeedingDemo}
+              />
+            )}
 
             {!isLoading && parties.map(party => (
               <tr

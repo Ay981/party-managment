@@ -15,4 +15,5 @@ export {
   getCompanyPartyDetails,
   updatePartyStatus,
   deleteCompanyParty,
+  seedParties,
 } from './party.mock'

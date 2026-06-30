@@ -12,10 +12,13 @@
 
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Plus, AlertCircle, RefreshCw } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { cn }             from '@/lib/utils'
+import { seedParties }    from '@/lib/api'
 import { useParties }     from '../../hooks/useParties'
 import { usePartyStore, selectFilters } from '@/store/party.store'
 import { useAuthStore, selectCompanyId } from '@/store/auth.store'
@@ -101,6 +104,7 @@ export function PartyList() {
   const companyId     = useAuthStore(selectCompanyId)
   const hasPermission = useAuthStore(s => s.hasPermission)
   const filters       = usePartyStore(selectFilters)
+  const [isSeedingDemo, setIsSeedingDemo] = useState(false)
 
   const { data, isLoading, isFetching, isError, error, refetch } =
     useParties(companyId, filters)
@@ -112,6 +116,27 @@ export function PartyList() {
     filters.isActive   !== null
 
   const canCreate = hasPermission(Permission.CREATE_PARTY)
+
+  const handleSeedDemo = async () => {
+    if (!companyId || isSeedingDemo) return
+
+    setIsSeedingDemo(true)
+    try {
+      const seededCount = seedParties(companyId)
+
+      if (seededCount > 0) {
+        toast.success(`Seeded ${seededCount} demo parties.`)
+      } else {
+        toast('Demo seed skipped. This company already has parties.')
+      }
+
+      await refetch()
+    } catch {
+      toast.error('Unable to seed demo parties.')
+    } finally {
+      setIsSeedingDemo(false)
+    }
+  }
 
   return (
     <div className="space-y-5 p-6">
@@ -138,6 +163,8 @@ export function PartyList() {
           isLoading={isLoading}
           isFetching={isFetching}
           hasFilters={hasFilters}
+          onSeedDemo={!hasFilters ? handleSeedDemo : undefined}
+          isSeedingDemo={isSeedingDemo}
         />
       )}
 
