@@ -1,0 +1,334 @@
+// src/features/party-management/components/PartyForm/CreatePartyForm.tsx
+//
+// Root component for the Create Party screen.
+// Covers US-01: Create Party (Customer, Vendor, or Both)
+//
+// Composition:
+//   Section 2 — Party Type          → inline toggle cards (shown first for UX)
+//   Section 1 — Party Information   → inline fields
+//   Section 3 — Customer Profile    → CustomerProfileFields (conditional, BR-02)
+//   Section 4 — Vendor Profile      → VendorProfileFields (conditional, BR-03)
+// ─────────────────────────────────────────────────────────────────────────────
+
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm, FormProvider } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ShoppingCart, Building2, AlertCircle, ArrowLeft, Check } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+import { useCreateParty } from '../../hooks/useCreateParty'
+import { useAuthStore, selectCompanyId } from '@/store/auth.store'
+import { createPartySchema, type CreatePartyFormValues } from '@/lib/validations/party.schema'
+import { CustomerProfileFields } from './CustomerProfileFields'
+import { VendorProfileFields }   from './VendorProfileFields'
+
+import type { CreatePartyPayload, PaymentTerms, RiskLevel } from '@/types/party.types'
+
+
+// ─── Default Values ─────────────────────────────────────────────────────────
+
+const DEFAULT_VALUES: CreatePartyFormValues = {
+  partyName: '', contactName: '', tin: '', phone: '', email: '', address: '',
+  isCustomer: false, isVendor: false,
+  customerProfile: {
+    creditLimit: '', paymentTerms: '', riskLevel: '',
+    usesWithholdingTax: false, receivableAccountId: '',
+  },
+  vendorProfile: {
+    serviceDescription: '', usesWithholdingTax: false,
+    paymentTerms: '', payableAccountId: '',
+  },
+}
+
+
+// ─── Local Field Wrapper ──────────────────────────────────────────────────────
+
+function FormField({
+  label, required, error, hint, children,
+}: {
+  label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
+}) {
+  return (
+    <div>
+      <label className="flex items-baseline justify-between">
+        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          {label}{required && <span className="ml-0.5 text-zinc-900">*</span>}
+        </span>
+        {hint && <span className="text-[11px] text-zinc-400 dark:text-zinc-600">{hint}</span>}
+      </label>
+      <div className="mt-1.5">{children}</div>
+      {error && (
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500 dark:text-red-400">
+          <AlertCircle className="h-3 w-3 shrink-0" strokeWidth={2} />
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+const inputCls = (hasError?: boolean) => cn(
+  'h-9 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
+  'placeholder:text-zinc-300 transition-colors duration-150',
+  'focus:outline-none focus:ring-2 focus:ring-offset-0',
+  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600',
+  hasError
+    ? 'border-red-300 focus:border-red-400 focus:ring-red-500/20 dark:border-red-800'
+    : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
+)
+
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export function CreatePartyForm() {
+  const router    = useRouter()
+  const companyId = useAuthStore(selectCompanyId) ?? ''
+
+  const form = useForm<CreatePartyFormValues>({
+    resolver:      zodResolver(createPartySchema),
+    defaultValues: DEFAULT_VALUES,
+    mode:          'onBlur',
+  })
+
+  const {
+    register, handleSubmit, watch, setValue, setError,
+    formState: { errors, isSubmitting },
+  } = form
+
+  const isCustomer = watch('isCustomer')
+  const isVendor   = watch('isVendor')
+
+  const createMutation = useCreateParty(companyId)
+
+  // Surface backend errors inline
+  useEffect(() => {
+    if (createMutation.error?.code === 'DUPLICATE_TIN') {
+      setError('tin', { message: createMutation.error.message })
+    }
+    if (createMutation.error?.errors) {
+      Object.entries(createMutation.error.errors).forEach(([field, messages]) => {
+        setError(field as keyof CreatePartyFormValues, { message: messages[0] })
+      })
+    }
+  }, [createMutation.error, setError])
+
+  const onSubmit = (values: CreatePartyFormValues) => {
+    const payload: CreatePartyPayload = {
+      partyName:   values.partyName,
+      contactName: values.contactName || undefined,
+      tin:         values.tin,
+      phone:       values.phone || undefined,
+      email:       values.email || undefined,
+      address:     values.address || undefined,
+      isCustomer:  values.isCustomer,
+      isVendor:    values.isVendor,
+      customerProfile: values.isCustomer ? {
+        creditLimit:         values.customerProfile.creditLimit ? Number(values.customerProfile.creditLimit) : undefined,
+        paymentTerms:        (values.customerProfile.paymentTerms || undefined) as PaymentTerms | undefined,
+        riskLevel:           values.customerProfile.riskLevel as RiskLevel,
+        usesWithholdingTax:  values.customerProfile.usesWithholdingTax,
+        receivableAccountId: values.customerProfile.receivableAccountId,
+      } : undefined,
+      vendorProfile: values.isVendor ? {
+        serviceDescription: values.vendorProfile.serviceDescription || undefined,
+        usesWithholdingTax: values.vendorProfile.usesWithholdingTax,
+        paymentTerms:       values.vendorProfile.paymentTerms as PaymentTerms,
+        payableAccountId:   values.vendorProfile.payableAccountId,
+      } : undefined,
+    }
+    createMutation.mutate(payload)
+  }
+
+  const partyTypeError = (errors as Record<string, { message?: string }>).partyType?.message
+  const isPending      = isSubmitting || createMutation.isPending
+
+  return (
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 pb-28">
+
+        <button
+          type="button"
+          onClick={() => router.push('/parties')}
+          className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
+          Back to parties
+        </button>
+
+        <div>
+          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Create party</h1>
+          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+            Register a new customer, vendor, or dual-role party
+          </p>
+        </div>
+
+        {/* ── Section 2 — Party Type ── */}
+        <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party type</h2>
+          <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Select one or both roles for this party</p>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {/* Customer toggle */}
+            <button
+              type="button"
+              onClick={() => setValue('isCustomer', !isCustomer, { shouldValidate: true })}
+              className={cn(
+                'relative flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+                isCustomer
+                  ? 'border-sky-400 bg-sky-50 dark:border-sky-600 dark:bg-sky-500/10'
+                  : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
+              )}
+            >
+              <div className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                isCustomer ? 'bg-sky-500 text-zinc-900 dark:text-zinc-100' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800',
+              )}>
+                <ShoppingCart className="h-4 w-4" strokeWidth={2} aria-hidden />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Customer</p>
+                <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">This party buys from your company</p>
+              </div>
+              {isCustomer && (
+                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500">
+                  <Check className="h-3 w-3 text-zinc-900 dark:text-zinc-100" strokeWidth={3} />
+                </span>
+              )}
+            </button>
+
+            {/* Vendor toggle */}
+            <button
+              type="button"
+              onClick={() => setValue('isVendor', !isVendor, { shouldValidate: true })}
+              className={cn(
+                'relative flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+                isVendor
+                  ? 'border-zinc-900 bg-white dark:border-zinc-100 dark:bg-zinc-950'
+                  : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
+              )}
+            >
+              <div className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                isVendor ? 'bg-white text-zinc-900 ring-1 ring-zinc-300 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-zinc-700' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800',
+              )}>
+                <Building2 className="h-4 w-4" strokeWidth={2} aria-hidden />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Vendor</p>
+                <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Your company buys from this party</p>
+              </div>
+              {isVendor && (
+                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-white ring-1 ring-zinc-300 dark:bg-zinc-950 dark:ring-zinc-700">
+                  <Check className="h-3 w-3 text-zinc-900 dark:text-zinc-100" strokeWidth={3} />
+                </span>
+              )}
+            </button>
+          </div>
+
+          {partyTypeError && (
+            <p className="mt-3 flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+              {partyTypeError}
+            </p>
+          )}
+        </section>
+
+        {/* ── Section 1 — Party Information ── */}
+        <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party information</h2>
+          <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Master record details — visible across all companies</p>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
+            <FormField label="Party name" required error={errors.partyName?.message}>
+              <input type="text" placeholder="e.g. Addis Trading Co." {...register('partyName')} className={inputCls(!!errors.partyName)} />
+            </FormField>
+
+            <FormField label="Contact name" hint="optional" error={errors.contactName?.message}>
+              <input type="text" placeholder="e.g. Aymen Abdulber" {...register('contactName')} className={inputCls(!!errors.contactName)} />
+            </FormField>
+
+            {/* TIN — BR-05 */}
+            <FormField label="TIN" required hint="10 digits" error={errors.tin?.message}>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="1234567890"
+                {...register('tin')}
+                className={cn(inputCls(!!errors.tin), 'font-mono')}
+              />
+            </FormField>
+
+            <FormField label="Phone" hint="optional" error={errors.phone?.message}>
+              <input type="tel" placeholder="+251 9XX XXX XXX" {...register('phone')} className={inputCls(!!errors.phone)} />
+            </FormField>
+
+            <FormField label="Email" hint="optional" error={errors.email?.message}>
+              <input type="email" placeholder="contact@company.com" {...register('email')} className={inputCls(!!errors.email)} />
+            </FormField>
+
+            <div className="sm:col-span-2">
+              <FormField label="Address" hint="optional">
+                <textarea rows={2} placeholder="Street, city, region…" {...register('address')} className={cn(inputCls(), 'h-auto resize-none py-2')} />
+              </FormField>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 3 — Customer Profile (BR-02) ── */}
+        {isCustomer && <CustomerProfileFields />}
+
+        {/* ── Section 4 — Vendor Profile (BR-03) ── */}
+        {isVendor && <VendorProfileFields />}
+
+        {/* ── Sticky action bar — BR-10 ── */}
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
+          <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3.5">
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              Fields marked <span className="text-zinc-900">*</span> are required
+            </p>
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => router.push('/parties')}
+                disabled={isPending}
+                className={cn(
+                  'inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium',
+                  'border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50',
+                  'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
+                  'disabled:cursor-not-allowed disabled:opacity-50',
+                )}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className={cn(
+                  'inline-flex h-9 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-zinc-900 dark:text-zinc-100 shadow-sm',
+                  'bg-white hover:bg-zinc-50 active:bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300 transition-colors',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
+                  'disabled:cursor-not-allowed disabled:opacity-60',
+                )}
+              >
+                {createMutation.isPending ? (
+                  <>
+                    <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Creating…
+                  </>
+                ) : 'Create party'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </FormProvider>
+  )
+}

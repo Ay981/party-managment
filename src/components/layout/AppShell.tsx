@@ -1,0 +1,133 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import {
+  Building2,
+  LogOut,
+  PanelLeft,
+  Plus,
+  UsersRound,
+} from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/store/auth.store'
+import { Permission } from '@/types/auth.types'
+
+const navItems = [
+  { href: '/parties', label: 'Parties', icon: UsersRound },
+]
+
+function formatRole(role: string) {
+  return role
+    .toLowerCase()
+    .split('_')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const session = useAuthStore(s => s.session)
+  const logout = useAuthStore(s => s.logout)
+  const canCreate = useAuthStore(s => s.hasPermission(Permission.CREATE_PARTY))
+
+  const handleLogout = () => {
+    logout()
+    router.replace('/login')
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
+      <div className="flex min-h-screen">
+        <aside className="hidden w-64 shrink-0 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:flex lg:flex-col">
+          <div className="flex h-16 items-center gap-3 border-b border-zinc-100 px-5 dark:border-zinc-800">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950">
+              <Building2 className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                Foundation ERP
+              </p>
+              <p className="truncate text-xs text-zinc-400 dark:text-zinc-500">
+                {session?.companyId}
+              </p>
+            </div>
+          </div>
+
+          <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Main navigation">
+            {navItems.map(item => {
+              const Icon = item.icon
+              const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                    active
+                      ? 'bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-950'
+                      : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100',
+                  )}
+                >
+                  <Icon className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  {item.label}
+                </Link>
+              )
+            })}
+
+            {canCreate && (
+              <Link
+                href="/parties/create"
+                className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+              >
+                <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
+                New party
+              </Link>
+            )}
+          </nav>
+
+          <div className="border-t border-zinc-100 p-3 dark:border-zinc-800">
+            <div className="mb-3 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
+              <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {session?.name}
+              </p>
+              <p className="mt-0.5 truncate text-xs text-zinc-400 dark:text-zinc-500">
+                {session ? formatRole(session.role) : ''}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+            >
+              <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
+              Sign out
+            </button>
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1">
+          <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-zinc-200 bg-white/90 px-4 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90 lg:hidden">
+            <div className="flex items-center gap-2">
+              <PanelLeft className="h-4 w-4 text-zinc-400" strokeWidth={2} aria-hidden />
+              <span className="text-sm font-semibold">Foundation ERP</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Sign out"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+            >
+              <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
+            </button>
+          </header>
+
+          <main className="mx-auto max-w-7xl">{children}</main>
+        </div>
+      </div>
+    </div>
+  )
+}
