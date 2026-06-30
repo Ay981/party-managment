@@ -303,19 +303,48 @@ export async function updateCompanyParty(
     throw mockError('Party record not found.', 'PARTY_NOT_FOUND')
   }
 
-  // Merge only the fields in scope for US-02.
-  // Spread existing record first so profiles and other fields are preserved.
+  let customerProfile: CustomerProfile | null = parties[index].customerProfile
+  if (payload.isCustomer && payload.customerProfile) {
+    customerProfile = {
+      creditLimit:        payload.customerProfile.creditLimit ?? null,
+      paymentTerms:       payload.customerProfile.paymentTerms ?? null,
+      riskLevel:          payload.customerProfile.riskLevel,
+      usesWithholdingTax: payload.customerProfile.usesWithholdingTax,
+      receivableAccount:  resolveGLAccount(payload.customerProfile.receivableAccountId),
+      status:             parties[index].customerProfile?.status ?? payload.isActive,
+    }
+  }
+  if (!payload.isCustomer) {
+    customerProfile = null
+  }
+
+  let vendorProfile: VendorProfile | null = parties[index].vendorProfile
+  if (payload.isVendor && payload.vendorProfile) {
+    vendorProfile = {
+      serviceDescription: payload.vendorProfile.serviceDescription ?? null,
+      usesWithholdingTax: payload.vendorProfile.usesWithholdingTax,
+      paymentTerms:       payload.vendorProfile.paymentTerms,
+      payableAccount:     resolveGLAccount(payload.vendorProfile.payableAccountId),
+      status:             parties[index].vendorProfile?.status ?? payload.isActive,
+    }
+  }
+  if (!payload.isVendor) {
+    vendorProfile = null
+  }
+
   const updated: CompanyParty = {
     ...parties[index],
-    partyName:   payload.partyName,
-    contactName: payload.contactName ?? null,
-    phone:       payload.phone       ?? null,
-    email:       payload.email       ?? null,
-    address:     payload.address     ?? null,
-    isCustomer:  payload.isCustomer,
-    isVendor:    payload.isVendor,
-    isActive:    payload.isActive,
-    updatedAt:   new Date().toISOString(),
+    partyName:       payload.partyName,
+    contactName:     payload.contactName ?? null,
+    phone:           payload.phone       ?? null,
+    email:           payload.email       ?? null,
+    address:         payload.address     ?? null,
+    isCustomer:      payload.isCustomer,
+    isVendor:        payload.isVendor,
+    isActive:        payload.isActive,
+    customerProfile,
+    vendorProfile,
+    updatedAt:       new Date().toISOString(),
   }
 
   parties[index] = updated

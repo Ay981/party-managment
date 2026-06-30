@@ -328,8 +328,8 @@ export interface CreatePartyPayload {
  * Important scoping note from US-02:
  *   - Updates ONLY the company-party relationship record
  *   - Does NOT update the global party master record
- *   - Does NOT update CustomerProfile or VendorProfile
- *   - Does NOT update GL Account Assignments
+ *   - Updates CustomerProfile / VendorProfile when the matching role is selected
+ *   - Updates required GL Account Assignments for selected roles
  *
  * Validation rules (US-02):
  *   - partyName: required, max 255 chars
@@ -347,6 +347,8 @@ export interface UpdatePartyPayload {
   isCustomer:    boolean  // at least one role must stay selected (US-02 Validation)
   isVendor:      boolean  // at least one role must stay selected (US-02 Validation)
   isActive:      boolean
+  customerProfile?: CreateCustomerProfilePayload
+  vendorProfile?:   CreateVendorProfilePayload
 }
 
 /**

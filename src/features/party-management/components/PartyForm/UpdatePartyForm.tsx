@@ -3,15 +3,15 @@
 // Root component for the Edit Company Party screen.
 // Covers US-02: Update Company Party Information
 //
-// Scope (US-02): partyName, contactName, phone, email, address,
-// isCustomer, isVendor, isActive. No TIN (immutable), no profile fields.
+// Scope: partyName, contactName, phone, email, address, roles, status,
+// and role profile fields when Customer/Vendor roles are selected. TIN is immutable.
 // ─────────────────────────────────────────────────────────────────────────────
 
 'use client'
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, AlertCircle, ShoppingCart, Building2, Check } from 'lucide-react'
 
@@ -20,8 +20,10 @@ import { usePartyDetails } from '../../hooks/usePartyDetails'
 import { useUpdateParty }  from '../../hooks/useUpdateParty'
 import { useAuthStore, selectCompanyId } from '@/store/auth.store'
 import { updatePartySchema, type UpdatePartyFormValues } from '@/lib/validations/party.schema'
+import { CustomerProfileFields } from './CustomerProfileFields'
+import { VendorProfileFields } from './VendorProfileFields'
 
-import type { UpdatePartyPayload } from '@/types/party.types'
+import type { PaymentTerms, RiskLevel, UpdatePartyPayload } from '@/types/party.types'
 
 
 // ─── Local Field Wrapper ──────────────────────────────────────────────────────
@@ -86,16 +88,26 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
 
   const { data: party, isLoading } = usePartyDetails(companyId, partyId)
 
-  const {
-    register, handleSubmit, watch, setValue, setError, reset,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<UpdatePartyFormValues>({
+  const form = useForm<UpdatePartyFormValues>({
     resolver:      zodResolver(updatePartySchema),
     defaultValues: {
       partyName: '', contactName: '', phone: '', email: '', address: '',
       isCustomer: false, isVendor: false, isActive: true,
+      customerProfile: {
+        creditLimit: '', paymentTerms: '', riskLevel: '',
+        usesWithholdingTax: false, receivableAccountId: '',
+      },
+      vendorProfile: {
+        serviceDescription: '', usesWithholdingTax: false,
+        paymentTerms: '', payableAccountId: '',
+      },
     },
   })
+
+  const {
+    register, handleSubmit, watch, setValue, setError, reset,
+    formState: { errors, isSubmitting, isDirty },
+  } = form
 
   // Pre-populate once party data loads — US-02 User Flow step 4, AC-01
   useEffect(() => {
@@ -109,6 +121,21 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
         isCustomer:  party.isCustomer,
         isVendor:    party.isVendor,
         isActive:    party.isActive,
+        customerProfile: {
+          creditLimit: party.customerProfile?.creditLimit != null
+            ? String(party.customerProfile.creditLimit)
+            : '',
+          paymentTerms: party.customerProfile?.paymentTerms ?? '',
+          riskLevel: party.customerProfile?.riskLevel ?? '',
+          usesWithholdingTax: party.customerProfile?.usesWithholdingTax ?? false,
+          receivableAccountId: party.customerProfile?.receivableAccount.id ?? '',
+        },
+        vendorProfile: {
+          serviceDescription: party.vendorProfile?.serviceDescription ?? '',
+          usesWithholdingTax: party.vendorProfile?.usesWithholdingTax ?? false,
+          paymentTerms: party.vendorProfile?.paymentTerms ?? '',
+          payableAccountId: party.vendorProfile?.payableAccount.id ?? '',
+        },
       })
     }
   }, [party, reset])
@@ -138,6 +165,19 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
       isCustomer:  values.isCustomer,
       isVendor:    values.isVendor,
       isActive:    values.isActive,
+      customerProfile: values.isCustomer ? {
+        creditLimit:         values.customerProfile.creditLimit ? Number(values.customerProfile.creditLimit) : undefined,
+        paymentTerms:        (values.customerProfile.paymentTerms || undefined) as PaymentTerms | undefined,
+        riskLevel:           values.customerProfile.riskLevel as RiskLevel,
+        usesWithholdingTax:  values.customerProfile.usesWithholdingTax,
+        receivableAccountId: values.customerProfile.receivableAccountId,
+      } : undefined,
+      vendorProfile: values.isVendor ? {
+        serviceDescription: values.vendorProfile.serviceDescription || undefined,
+        usesWithholdingTax: values.vendorProfile.usesWithholdingTax,
+        paymentTerms:       values.vendorProfile.paymentTerms as PaymentTerms,
+        payableAccountId:   values.vendorProfile.payableAccountId,
+      } : undefined,
     }
     updateMutation.mutate(
       { companyPartyId: partyId, payload },
@@ -151,7 +191,8 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
   const isPending      = isSubmitting || updateMutation.isPending
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 pb-28">
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 pb-28">
 
       <button
         type="button"
@@ -169,12 +210,11 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
         </p>
       </div>
 
-      {/* Scope note — US-02 "Out of Scope" */}
       <div className="flex items-start gap-2.5 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
         <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400" strokeWidth={2} />
         <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-          This updates contact and role details for this company only. Customer/vendor
-          profile fields, GL accounts, and the global party master record are unaffected.
+          This updates this company party record only. When you add a Customer or Vendor
+          role, complete the matching profile fields before saving.
         </p>
       </div>
 
@@ -303,6 +343,10 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
         </div>
       </section>
 
+      {isCustomer && <CustomerProfileFields />}
+
+      {isVendor && <VendorProfileFields />}
+
       {/* ── Sticky action bar ── */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3.5">
@@ -328,8 +372,8 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
               type="submit"
               disabled={isPending || !isDirty}
               className={cn(
-                'inline-flex h-9 min-w-[130px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-zinc-900 dark:text-zinc-100 shadow-sm',
-                'bg-white hover:bg-zinc-50 active:bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300 transition-colors',
+                'inline-flex h-9 min-w-[130px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-zinc-950 shadow-sm',
+                'bg-white hover:bg-zinc-50 active:bg-zinc-100 ring-1 ring-zinc-300 transition-colors dark:bg-white dark:text-zinc-950',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
                 'disabled:cursor-not-allowed disabled:opacity-60',
               )}
@@ -347,6 +391,7 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
           </div>
         </div>
       </div>
-    </form>
+      </form>
+    </FormProvider>
   )
 }

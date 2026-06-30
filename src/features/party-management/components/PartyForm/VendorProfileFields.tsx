@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 import { PaymentTerms } from '@/types/party.types'
 import { MOCK_PAYABLE_ACCOUNTS } from '@/lib/api/party.mock'
 
-import type { CreatePartyFormValues } from '@/lib/validations/party.schema'
+import type { CreatePartyFormValues, UpdatePartyFormValues } from '@/lib/validations/party.schema'
 
 
 const PAYMENT_TERMS_OPTIONS: { value: PaymentTerms; label: string }[] = [
@@ -72,7 +72,7 @@ export function VendorProfileFields() {
     watch,
     setValue,
     formState: { errors },
-  } = useFormContext<CreatePartyFormValues>()
+  } = useFormContext<CreatePartyFormValues | UpdatePartyFormValues>()
 
   const usesWithholdingTax = watch('vendorProfile.usesWithholdingTax')
   const fieldErrors        = errors.vendorProfile

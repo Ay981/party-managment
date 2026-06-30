@@ -169,12 +169,9 @@ export type CreatePartyFormValues = z.infer<typeof createPartySchema>
 // ─── Update Party Schema (US-02) ───────────────────────────────────────────────
 
 /**
- * Deliberately narrow — matches US-02 Scope exactly.
- *   ✔ partyName, contactName, phone, email, address
- *   ✔ isCustomer, isVendor, isActive
- *   ✖ No TIN — immutable after creation (Appendix C)
- *   ✖ No profile fields — "Out of Scope: Updating Vendor Profile or
- *     Customer Profile details" (US-02 Scope)
+ * Update schema for company-party edits. TIN remains immutable, while
+ * customer/vendor profile fields are required whenever the matching role
+ * is selected so a newly added role has usable profile and GL data.
  */
 export const updatePartySchema = z
   .object({
@@ -186,6 +183,19 @@ export const updatePartySchema = z
     isCustomer:  z.boolean(),
     isVendor:    z.boolean(),
     isActive:    z.boolean(),
+    customerProfile: z.object({
+      creditLimit:         z.string().optional(),
+      paymentTerms:        z.union([z.nativeEnum(PaymentTerms), z.literal('')]).optional(),
+      riskLevel:           z.union([z.nativeEnum(RiskLevel), z.literal('')]),
+      usesWithholdingTax:  z.boolean(),
+      receivableAccountId: z.string(),
+    }),
+    vendorProfile: z.object({
+      serviceDescription: z.string().optional(),
+      usesWithholdingTax: z.boolean(),
+      paymentTerms:       z.union([z.nativeEnum(PaymentTerms), z.literal('')]),
+      payableAccountId:   z.string(),
+    }),
   })
   .superRefine((data, ctx) => {
     // Reference: US-02 Validation Rules "At least one role must remain selected"
@@ -195,6 +205,46 @@ export const updatePartySchema = z
         message: 'At least one role (Vendor or Customer) must be selected.',
         path:    ['partyType'],
       })
+    }
+
+    if (data.isCustomer) {
+      if (!data.customerProfile.riskLevel) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, message: 'Risk level is required.',
+          path: ['customerProfile', 'riskLevel'],
+        })
+      }
+      if (!data.customerProfile.receivableAccountId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, message: 'Receivable account is required.',
+          path: ['customerProfile', 'receivableAccountId'],
+        })
+      }
+      if (data.customerProfile.creditLimit?.trim()) {
+        const parsed = Number(data.customerProfile.creditLimit)
+        if (Number.isNaN(parsed) || parsed < 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Credit limit must be greater than or equal to zero.',
+            path: ['customerProfile', 'creditLimit'],
+          })
+        }
+      }
+    }
+
+    if (data.isVendor) {
+      if (!data.vendorProfile.paymentTerms) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, message: 'Payment terms are required.',
+          path: ['vendorProfile', 'paymentTerms'],
+        })
+      }
+      if (!data.vendorProfile.payableAccountId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, message: 'Payable account is required.',
+          path: ['vendorProfile', 'payableAccountId'],
+        })
+      }
     }
   })
 

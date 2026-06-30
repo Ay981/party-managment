@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 import { PaymentTerms, RiskLevel } from '@/types/party.types'
 import { MOCK_RECEIVABLE_ACCOUNTS } from '@/lib/api/party.mock'
 
-import type { CreatePartyFormValues } from '@/lib/validations/party.schema'
+import type { CreatePartyFormValues, UpdatePartyFormValues } from '@/lib/validations/party.schema'
 
 
 // ─── Option Lists ─────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export function CustomerProfileFields() {
     watch,
     setValue,
     formState: { errors },
-  } = useFormContext<CreatePartyFormValues>()
+  } = useFormContext<CreatePartyFormValues | UpdatePartyFormValues>()
 
   const usesWithholdingTax = watch('customerProfile.usesWithholdingTax')
   const riskLevel          = watch('customerProfile.riskLevel')

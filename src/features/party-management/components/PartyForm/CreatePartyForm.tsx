@@ -309,8 +309,8 @@ export function CreatePartyForm() {
                 type="submit"
                 disabled={isPending}
                 className={cn(
-                  'inline-flex h-9 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-zinc-900 dark:text-zinc-100 shadow-sm',
-                  'bg-white hover:bg-zinc-50 active:bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300 transition-colors',
+                  'inline-flex h-9 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-zinc-950 shadow-sm',
+                  'bg-white hover:bg-zinc-50 active:bg-zinc-100 ring-1 ring-zinc-300 transition-colors dark:bg-white dark:text-zinc-950',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
                   'disabled:cursor-not-allowed disabled:opacity-60',
                 )}
