@@ -19,6 +19,8 @@
 'use client'
 
 import { format } from 'date-fns'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ArrowUpDown, Database, Users } from 'lucide-react'
 
 import { cn }               from '@/lib/utils'
@@ -255,6 +257,7 @@ export function PartyTable({
   isSeedingDemo = false,
 }: PartyTableProps) {
   const companyId = useAuthStore(selectCompanyId) ?? ''
+  const router    = useRouter()
 
   const columns = [
     { key: 'partyCode',   label: 'Party code' },
@@ -309,7 +312,8 @@ export function PartyTable({
             {!isLoading && parties.map(party => (
               <tr
                 key={party.id}
-                className="group transition-colors duration-100 hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
+                onClick={() => router.push(`/parties/${party.id}`)}
+                className="group cursor-pointer transition-colors duration-100 hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
               >
                 <td className="px-4 py-3">
                   <span className="font-mono text-xs font-medium text-zinc-600 dark:text-zinc-400">
@@ -325,7 +329,13 @@ export function PartyTable({
 
                 <td className="px-4 py-3">
                   <div className="space-y-0.5">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{party.partyName}</p>
+                    <Link
+                      href={`/parties/${party.id}`}
+                      onClick={e => e.stopPropagation()}
+                      className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                    >
+                      {party.partyName}
+                    </Link>
                     {party.email && (
                       <p className="text-xs text-zinc-400 dark:text-zinc-500">{party.email}</p>
                     )}
@@ -363,7 +373,10 @@ export function PartyTable({
                   </span>
                 </td>
 
-                <td className="sticky right-0 z-10 bg-white px-3 py-3 text-right shadow-[-8px_0_12px_-8px_rgba(15,23,42,0.12)] group-hover:bg-zinc-50 dark:bg-zinc-950 dark:shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.4)] dark:group-hover:bg-zinc-900/60">
+                <td
+                  className="sticky right-0 z-10 bg-white px-3 py-3 text-right shadow-[-8px_0_12px_-8px_rgba(15,23,42,0.12)] group-hover:bg-zinc-50 dark:bg-zinc-950 dark:shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.4)] dark:group-hover:bg-zinc-900/60"
+                  onClick={e => e.stopPropagation()}
+                >
                   <div className="flex justify-end">
                     <PartyActionsMenu party={party} companyId={companyId} />
                   </div>
