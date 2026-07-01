@@ -5,17 +5,17 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: oklch(0.967 0.004 255);
+  --background: oklch(0.936 0.005 258);
   --foreground: oklch(0.21 0.008 255);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-white: oklch(0.986 0.003 255);
+  --color-white: oklch(0.971 0.004 255);
   --color-black: oklch(0.16 0.006 255);
-  --color-zinc-50: oklch(0.965 0.004 255);
-  --color-zinc-100: oklch(0.932 0.006 255);
+  --color-zinc-50: oklch(0.950 0.005 258);
+  --color-zinc-100: oklch(0.918 0.006 258);
   --color-zinc-200: oklch(0.875 0.008 255);
   --color-zinc-300: oklch(0.785 0.01 255);
   --color-zinc-400: oklch(0.64 0.012 255);
