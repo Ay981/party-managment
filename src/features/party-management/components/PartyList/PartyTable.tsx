@@ -337,7 +337,12 @@ export function PartyTable({
                       {party.partyName}
                     </Link>
                     {party.email && (
-                      <p className="text-xs text-zinc-400 dark:text-zinc-500">{party.email}</p>
+                      <p
+                        className="max-w-[200px] truncate text-xs text-zinc-400 dark:text-zinc-500"
+                        title={party.email}
+                      >
+                        {party.email}
+                      </p>
                     )}
                   </div>
                 </td>
