@@ -146,7 +146,7 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
       {/* Back link */}
       <Link
         href="/parties"
-        className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+        className="inline-flex min-h-11 items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
       >
         <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
         Back to parties
@@ -177,7 +177,7 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
               <Link
                 href={`/parties/${party.id}/edit`}
                 className={cn(
-                  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium',
+                  'inline-flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium',
                   'border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors',
                   'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
                 )}
@@ -194,7 +194,7 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
                   id: party.id, partyName: party.partyName, tin: party.tin,
                 })}
                 className={cn(
-                  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium shadow-sm transition-colors',
+                  'inline-flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium shadow-sm transition-colors',
                   party.isActive
                     ? 'border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-500/10 dark:text-amber-400'
                     : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
@@ -212,7 +212,7 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
                 type="button"
                 onClick={() => openModal('delete', { id: party.id, partyName: party.partyName, tin: party.tin })}
                 className={cn(
-                  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium shadow-sm transition-colors',
+                  'inline-flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium shadow-sm transition-colors',
                   'border border-red-200 bg-red-50 text-red-600 hover:bg-red-100',
                   'dark:border-red-900 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20',
                 )}

@@ -42,13 +42,13 @@ const RISK_LEVEL_OPTIONS: { value: RiskLevel; label: string; dot: string }[] = [
 // ─── Local Field Wrapper ───────────────────────────────────────────────────────
 
 function FormField({
-  label, required, error, hint, children,
+  id, label, required, error, hint, children,
 }: {
-  label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
+  id: string; label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
 }) {
   return (
     <div>
-      <label className="flex items-baseline justify-between">
+      <label htmlFor={id} className="flex items-baseline justify-between">
         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
           {label}
           {required && <span className="ml-0.5 text-sky-500">*</span>}
@@ -67,10 +67,10 @@ function FormField({
 }
 
 const inputCls = (hasError?: boolean) => cn(
-  'h-9 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
-  'placeholder:text-zinc-300 transition-colors duration-150',
+  'h-11 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
+  'placeholder:text-zinc-500 transition-colors duration-150',
   'focus:outline-none focus:ring-2 focus:ring-offset-0',
-  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600',
+  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-400',
   hasError
     ? 'border-red-300 focus:border-red-400 focus:ring-red-500/20 dark:border-red-800'
     : 'border-zinc-200 focus:border-sky-400 focus:ring-sky-500/20 dark:border-zinc-700 dark:focus:border-sky-600',
@@ -100,19 +100,20 @@ export function CustomerProfileFields() {
         </div>
         <div>
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Customer profile</h3>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">Financial details for transacting as a customer</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Receivable, risk, and tax defaults for sales posting</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 p-5 sm:grid-cols-2">
 
         {/* Credit Limit — BR-09 */}
-        <FormField label="Credit limit" hint="optional · ETB" error={fieldErrors?.creditLimit?.message}>
+        <FormField id="customer-credit-limit" label="Credit limit" hint="optional · ETB" error={fieldErrors?.creditLimit?.message}>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">
               ETB
             </span>
             <input
+              id="customer-credit-limit"
               type="text"
               inputMode="decimal"
               placeholder="0.00"
@@ -123,8 +124,9 @@ export function CustomerProfileFields() {
         </FormField>
 
         {/* Payment Terms — optional */}
-        <FormField label="Payment terms" hint="optional">
+        <FormField id="customer-payment-terms" label="Payment terms" hint="optional">
           <select
+            id="customer-payment-terms"
             {...register('customerProfile.paymentTerms')}
             className={cn(inputCls(), 'cursor-pointer')}
           >
@@ -136,8 +138,8 @@ export function CustomerProfileFields() {
         </FormField>
 
         {/* Risk Level — REQUIRED */}
-        <FormField label="Risk level" required error={fieldErrors?.riskLevel?.message}>
-          <div className="flex gap-1.5">
+        <FormField id="customer-risk-level" label="Risk level" required error={fieldErrors?.riskLevel?.message}>
+          <div id="customer-risk-level" className="flex gap-1.5" role="group" aria-label="Risk level">
             {RISK_LEVEL_OPTIONS.map(opt => {
               const selected = riskLevel === opt.value
               return (
@@ -145,8 +147,9 @@ export function CustomerProfileFields() {
                   key={opt.value}
                   type="button"
                   onClick={() => setValue('customerProfile.riskLevel', opt.value, { shouldValidate: true })}
+                  aria-pressed={selected}
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-all',
+                    'flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-medium transition-all',
                     selected
                       ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
                       : 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400',
@@ -161,8 +164,9 @@ export function CustomerProfileFields() {
         </FormField>
 
         {/* Receivable Account — REQUIRED, BR-07 */}
-        <FormField label="Receivable account" required error={fieldErrors?.receivableAccountId?.message}>
+        <FormField id="customer-receivable-account" label="Receivable account" required error={fieldErrors?.receivableAccountId?.message}>
           <select
+            id="customer-receivable-account"
             {...register('customerProfile.receivableAccountId')}
             className={cn(inputCls(!!fieldErrors?.receivableAccountId), 'cursor-pointer')}
           >
@@ -174,8 +178,8 @@ export function CustomerProfileFields() {
         </FormField>
 
         {/* Uses Withholding Tax */}
-        <FormField label="Uses withholding tax" hint="optional">
-          <div className="flex gap-1.5">
+        <FormField id="customer-withholding-tax" label="Uses withholding tax" hint="optional">
+          <div id="customer-withholding-tax" className="flex gap-1.5" role="group" aria-label="Customer withholding tax">
             {([{ label: 'Yes', value: true }, { label: 'No', value: false }] as const).map(opt => {
               const selected = usesWithholdingTax === opt.value
               return (
@@ -183,8 +187,9 @@ export function CustomerProfileFields() {
                   key={String(opt.value)}
                   type="button"
                   onClick={() => setValue('customerProfile.usesWithholdingTax', opt.value, { shouldValidate: true })}
+                  aria-pressed={selected}
                   className={cn(
-                    'flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all',
+                    'min-h-11 flex-1 rounded-lg border px-3 text-xs font-medium transition-all',
                     selected
                       ? 'border-sky-400 bg-sky-100 text-sky-700 dark:border-sky-600 dark:bg-sky-500/15 dark:text-sky-400'
                       : 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400',

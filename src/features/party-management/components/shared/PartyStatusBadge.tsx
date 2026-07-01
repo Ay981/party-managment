@@ -45,9 +45,6 @@ export function PartyStatusBadge({
       )}
     >
       <span className="relative flex h-1.5 w-1.5">
-        {isActive && (
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-        )}
         <span
           className={cn(
             'relative inline-flex h-1.5 w-1.5 rounded-full',

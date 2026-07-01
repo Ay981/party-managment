@@ -7,6 +7,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
+    // Installed agent/tooling bundles:
+    ".agents/**",
+    ".impeccable/**",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",

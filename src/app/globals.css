@@ -2,26 +2,83 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.967 0.004 255);
+  --foreground: oklch(0.21 0.008 255);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-white: oklch(0.986 0.003 255);
+  --color-black: oklch(0.16 0.006 255);
+  --color-zinc-50: oklch(0.965 0.004 255);
+  --color-zinc-100: oklch(0.932 0.006 255);
+  --color-zinc-200: oklch(0.875 0.008 255);
+  --color-zinc-300: oklch(0.785 0.01 255);
+  --color-zinc-400: oklch(0.64 0.012 255);
+  --color-zinc-500: oklch(0.515 0.012 255);
+  --color-zinc-600: oklch(0.425 0.011 255);
+  --color-zinc-700: oklch(0.335 0.01 255);
+  --color-zinc-800: oklch(0.26 0.009 255);
+  --color-zinc-900: oklch(0.205 0.008 255);
+  --color-zinc-950: oklch(0.16 0.006 255);
+  --color-sky-50: oklch(0.955 0.016 235);
+  --color-sky-100: oklch(0.91 0.024 235);
+  --color-sky-200: oklch(0.84 0.04 235);
+  --color-sky-300: oklch(0.74 0.058 235);
+  --color-sky-400: oklch(0.64 0.068 235);
+  --color-sky-500: oklch(0.54 0.076 235);
+  --color-sky-600: oklch(0.465 0.072 235);
+  --color-sky-700: oklch(0.39 0.058 235);
+  --color-sky-800: oklch(0.315 0.044 235);
+  --color-sky-900: oklch(0.255 0.034 235);
+  --color-sky-950: oklch(0.19 0.026 235);
+  --color-emerald-50: oklch(0.955 0.016 154);
+  --color-emerald-100: oklch(0.91 0.026 154);
+  --color-emerald-200: oklch(0.84 0.04 154);
+  --color-emerald-300: oklch(0.74 0.052 154);
+  --color-emerald-400: oklch(0.63 0.06 154);
+  --color-emerald-500: oklch(0.525 0.066 154);
+  --color-emerald-600: oklch(0.445 0.06 154);
+  --color-emerald-700: oklch(0.365 0.049 154);
+  --color-emerald-800: oklch(0.3 0.039 154);
+  --color-emerald-900: oklch(0.245 0.03 154);
+  --color-emerald-950: oklch(0.18 0.022 154);
+  --color-amber-50: oklch(0.955 0.02 78);
+  --color-amber-100: oklch(0.91 0.034 78);
+  --color-amber-200: oklch(0.835 0.052 78);
+  --color-amber-300: oklch(0.725 0.066 78);
+  --color-amber-400: oklch(0.61 0.076 78);
+  --color-amber-500: oklch(0.5 0.078 78);
+  --color-amber-600: oklch(0.425 0.068 78);
+  --color-amber-700: oklch(0.355 0.054 78);
+  --color-amber-800: oklch(0.29 0.042 78);
+  --color-amber-900: oklch(0.235 0.032 78);
+  --color-amber-950: oklch(0.175 0.024 78);
+  --color-red-50: oklch(0.955 0.016 25);
+  --color-red-100: oklch(0.91 0.028 25);
+  --color-red-200: oklch(0.835 0.044 25);
+  --color-red-300: oklch(0.725 0.062 25);
+  --color-red-400: oklch(0.615 0.078 25);
+  --color-red-500: oklch(0.515 0.086 25);
+  --color-red-600: oklch(0.435 0.078 25);
+  --color-red-700: oklch(0.36 0.064 25);
+  --color-red-800: oklch(0.295 0.05 25);
+  --color-red-900: oklch(0.24 0.038 25);
+  --color-red-950: oklch(0.175 0.028 25);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: oklch(0.16 0.006 255);
+    --foreground: oklch(0.92 0.004 255);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }

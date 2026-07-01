@@ -86,7 +86,7 @@ function EmptyState({
               type="button"
               onClick={resetFilters}
               className={cn(
-                'mt-1 inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium',
+                'mt-1 inline-flex h-11 items-center rounded-lg px-4 text-xs font-medium',
                 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50',
                 'dark:bg-zinc-950 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-900',
                 'transition-colors duration-150',
@@ -103,10 +103,10 @@ function EmptyState({
                 onClick={onSeedDemo}
                 disabled={isSeedingDemo}
                 className={cn(
-                  'inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold shadow-sm',
-                  'border-amber-200 bg-white text-zinc-900 hover:bg-amber-50',
+                  'inline-flex h-11 items-center gap-2 rounded-lg border px-4 text-xs font-semibold shadow-sm',
+                  'border-amber-200 bg-white text-amber-950 hover:bg-amber-50',
                   'disabled:cursor-not-allowed disabled:opacity-60',
-                  'dark:border-amber-500/30 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-amber-500/10',
+                  'dark:border-amber-500/30 dark:bg-zinc-950 dark:text-amber-100 dark:hover:bg-amber-500/10',
                   'transition-colors duration-150',
                 )}
               >
@@ -154,7 +154,7 @@ function Pagination({ meta }: { meta: PaginationMeta }) {
           onClick={() => setPage(meta.page - 1)}
           disabled={meta.page === 1}
           className={cn(
-            'inline-flex h-7 items-center gap-1 rounded-md px-2.5 text-xs font-medium',
+            'inline-flex h-11 items-center gap-1 rounded-md px-3 text-xs font-medium',
             'text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800',
             'disabled:cursor-not-allowed disabled:opacity-40',
           )}
@@ -173,7 +173,7 @@ function Pagination({ meta }: { meta: PaginationMeta }) {
                 onClick={() => setPage(page)}
                 aria-current={page === meta.page ? 'page' : undefined}
                 className={cn(
-                  'inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-medium transition-colors duration-150',
+                  'inline-flex h-11 w-11 items-center justify-center rounded-md text-xs font-medium transition-colors duration-150',
                   page === meta.page
                     ? 'bg-white text-zinc-900 ring-1 ring-zinc-300 shadow-sm'
                     : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800',
@@ -190,7 +190,7 @@ function Pagination({ meta }: { meta: PaginationMeta }) {
           onClick={() => setPage(meta.page + 1)}
           disabled={meta.page === meta.totalPages}
           className={cn(
-            'inline-flex h-7 items-center gap-1 rounded-md px-2.5 text-xs font-medium',
+            'inline-flex h-11 items-center gap-1 rounded-md px-3 text-xs font-medium',
             'text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800',
             'disabled:cursor-not-allowed disabled:opacity-40',
           )}
@@ -271,7 +271,7 @@ export function PartyTable({
       )}
     >
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[800px] border-collapse text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-sm lg:min-w-[800px]">
           <thead className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
             <tr>
               {columns.map(col => (

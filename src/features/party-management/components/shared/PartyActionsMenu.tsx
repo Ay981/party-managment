@@ -216,7 +216,7 @@ export function PartyActionsMenu({ party }: PartyActionsMenuProps) {
         aria-expanded={isOpen}
         aria-label="Party actions"
         className={cn(
-          'inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900',
+          'inline-flex h-11 w-11 items-center justify-center rounded-md border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900',
           'text-zinc-600 transition-colors duration-150 dark:text-zinc-300',
           'hover:bg-zinc-100 hover:text-zinc-600',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
@@ -258,7 +258,7 @@ export function PartyActionsMenu({ party }: PartyActionsMenuProps) {
                     type="button"
                     onClick={item.onClick}
                     className={cn(
-                      'flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors duration-100',
+                      'flex min-h-11 w-full items-center gap-2.5 px-3 text-sm transition-colors duration-100',
                       item.variant === 'default' && [
                         'text-zinc-700 dark:text-zinc-300',
                         'hover:bg-zinc-50 hover:text-zinc-900',

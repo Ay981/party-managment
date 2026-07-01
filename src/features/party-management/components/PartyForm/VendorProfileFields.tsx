@@ -31,13 +31,13 @@ const PAYMENT_TERMS_OPTIONS: { value: PaymentTerms; label: string }[] = [
 
 
 function FormField({
-  label, required, error, hint, children,
+  id, label, required, error, hint, children,
 }: {
-  label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
+  id: string; label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
 }) {
   return (
     <div>
-      <label className="flex items-baseline justify-between">
+      <label htmlFor={id} className="flex items-baseline justify-between">
         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
           {label}
           {required && <span className="ml-0.5 text-zinc-900">*</span>}
@@ -56,10 +56,10 @@ function FormField({
 }
 
 const inputCls = (hasError?: boolean) => cn(
-  'h-9 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
-  'placeholder:text-zinc-300 transition-colors duration-150',
+  'h-11 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
+  'placeholder:text-zinc-500 transition-colors duration-150',
   'focus:outline-none focus:ring-2 focus:ring-offset-0',
-  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600',
+  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-400',
   hasError
     ? 'border-red-300 focus:border-red-400 focus:ring-red-500/20 dark:border-red-800'
     : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
@@ -86,15 +86,16 @@ export function VendorProfileFields() {
         </div>
         <div>
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Vendor profile</h3>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">Procurement details for transacting as a vendor</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Payable, tax, and terms defaults for procurement posting</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 p-5 sm:grid-cols-2">
 
         {/* Payment Terms — REQUIRED */}
-        <FormField label="Payment terms" required error={fieldErrors?.paymentTerms?.message}>
+        <FormField id="vendor-payment-terms" label="Payment terms" required error={fieldErrors?.paymentTerms?.message}>
           <select
+            id="vendor-payment-terms"
             {...register('vendorProfile.paymentTerms')}
             className={cn(inputCls(!!fieldErrors?.paymentTerms), 'cursor-pointer')}
           >
@@ -106,8 +107,9 @@ export function VendorProfileFields() {
         </FormField>
 
         {/* Payable Account — REQUIRED, BR-08 */}
-        <FormField label="Payable account" required error={fieldErrors?.payableAccountId?.message}>
+        <FormField id="vendor-payable-account" label="Payable account" required error={fieldErrors?.payableAccountId?.message}>
           <select
+            id="vendor-payable-account"
             {...register('vendorProfile.payableAccountId')}
             className={cn(inputCls(!!fieldErrors?.payableAccountId), 'cursor-pointer')}
           >
@@ -119,8 +121,8 @@ export function VendorProfileFields() {
         </FormField>
 
         {/* Uses Withholding Tax */}
-        <FormField label="Uses withholding tax" hint="optional">
-          <div className="flex gap-1.5">
+        <FormField id="vendor-withholding-tax" label="Uses withholding tax" hint="optional">
+          <div id="vendor-withholding-tax" className="flex gap-1.5" role="group" aria-label="Vendor withholding tax">
             {([{ label: 'Yes', value: true }, { label: 'No', value: false }] as const).map(opt => {
               const selected = usesWithholdingTax === opt.value
               return (
@@ -128,8 +130,9 @@ export function VendorProfileFields() {
                   key={String(opt.value)}
                   type="button"
                   onClick={() => setValue('vendorProfile.usesWithholdingTax', opt.value, { shouldValidate: true })}
+                  aria-pressed={selected}
                   className={cn(
-                    'flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all',
+                    'min-h-11 flex-1 rounded-lg border px-3 text-xs font-medium transition-all',
                     selected
                       ? 'border-zinc-900 bg-white text-zinc-950 dark:border-zinc-100 dark:bg-zinc-950 dark:text-zinc-50'
                       : 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400',
@@ -144,12 +147,13 @@ export function VendorProfileFields() {
 
         {/* Service Description — full width, free text */}
         <div className="sm:col-span-2">
-          <FormField label="Service description" hint="optional">
+          <FormField id="vendor-service-description" label="Service description" hint="optional">
             <textarea
+              id="vendor-service-description"
               rows={3}
-              placeholder="Describe the goods or services this vendor provides…"
+              placeholder="Describe the goods or services this vendor provides..."
               {...register('vendorProfile.serviceDescription')}
-              className={cn(inputCls(), 'h-auto resize-none py-2')}
+              className={cn(inputCls(), 'h-auto min-h-28 resize-none py-2')}
             />
           </FormField>
         </div>

@@ -179,8 +179,8 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
               autoComplete="off"
               disabled={mutation.isPending}
               className={cn(
-                'mt-1.5 h-9 w-full rounded-lg border px-3 text-sm',
-                'bg-white text-zinc-900 placeholder:text-zinc-300',
+                'mt-1.5 h-11 w-full rounded-lg border px-3 text-sm',
+                'bg-white text-zinc-900 placeholder:text-zinc-500',
                 'transition-colors duration-150',
                 'focus:outline-none focus:ring-2 focus:ring-offset-0',
                 'disabled:cursor-not-allowed disabled:opacity-60',
@@ -208,7 +208,7 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
               onClick={handleClose}
               disabled={mutation.isPending}
               className={cn(
-                'inline-flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium',
+                'inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium',
                 'border border-zinc-200 bg-white text-zinc-700 shadow-sm',
                 'hover:bg-zinc-50 hover:text-zinc-900 transition-colors',
                 'dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
@@ -225,7 +225,7 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
               onClick={handleDelete}
               disabled={mutation.isPending || !confirmMatch}
               className={cn(
-                'inline-flex h-9 min-w-[100px] items-center justify-center gap-2',
+                'inline-flex h-11 min-w-[100px] items-center justify-center gap-2',
                 'rounded-lg px-4 text-sm font-medium text-white shadow-sm',
                 'bg-red-600 hover:bg-red-700 active:bg-red-800',
                 'transition-colors duration-150',

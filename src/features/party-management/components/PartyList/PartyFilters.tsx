@@ -44,8 +44,8 @@ function FilterCheckbox({
     <label
       htmlFor={id}
       className={cn(
-        'inline-flex cursor-pointer select-none items-center gap-2',
-        'rounded-md border px-3 py-1.5 text-sm font-medium transition-all duration-150',
+        'relative inline-flex min-h-11 cursor-pointer select-none items-center gap-2',
+        'rounded-md border px-3.5 py-2 text-sm font-medium transition-all duration-150',
         checked && accent === 'sky'    && 'border-sky-400 bg-sky-50 text-sky-700 dark:border-sky-600 dark:bg-sky-500/10 dark:text-sky-400',
         checked && accent === 'neutral' && 'border-zinc-900 bg-white text-zinc-900 dark:border-zinc-100 dark:bg-zinc-950 dark:text-zinc-100',
         !checked && 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600',
@@ -56,7 +56,7 @@ function FilterCheckbox({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="sr-only"
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
         aria-label={label}
       />
       <span
@@ -151,7 +151,7 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
             placeholder="Search by name, TIN, or phone…"
             aria-label="Search parties"
             className={cn(
-              'h-9 w-full rounded-lg border border-zinc-200 bg-white pl-9 pr-8 text-sm',
+              'h-11 w-full rounded-lg border border-zinc-200 bg-white pl-9 pr-11 text-sm',
               'text-zinc-900 placeholder:text-zinc-400',
               'transition-shadow duration-150',
               'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
@@ -163,7 +163,7 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
               type="button"
               onClick={handleClearSearch}
               aria-label="Clear search"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+              className="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
             >
               <X className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
@@ -175,7 +175,7 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
           onClick={handleSearch}
           disabled={isFetching}
           className={cn(
-            'inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-medium',
+            'inline-flex h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-medium',
             'border border-zinc-200 bg-white text-zinc-900 shadow-sm',
             'hover:bg-zinc-50 active:bg-zinc-100',
             'transition-colors duration-150',
@@ -198,7 +198,7 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
             value={filters.perPage}
             onChange={e => setFilter('perPage', Number(e.target.value) as PerPageOption)}
             className={cn(
-              'h-9 cursor-pointer rounded-lg border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700',
+              'h-11 cursor-pointer rounded-lg border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700',
               'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
               'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300',
             )}
@@ -240,7 +240,7 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
           onChange={e => setStatusFilter(e.target.value as ActiveStatusFilter)}
           aria-label="Filter by status"
           className={cn(
-            'h-8 cursor-pointer rounded-md border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700',
+            'h-11 cursor-pointer rounded-md border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700',
             'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
             'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300',
           )}
@@ -272,7 +272,7 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
             type="button"
             onClick={handleResetFilters}
             className={cn(
-              'inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium',
+              'inline-flex min-h-11 items-center gap-1 rounded-md px-3 text-xs font-medium',
               'text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700',
               'dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300',
             )}

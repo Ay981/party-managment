@@ -77,7 +77,7 @@ function AccessDenied({ permission }: { permission?: Permission }) {
         <Link
           href="/parties"
           className={cn(
-            'mt-5 inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium',
+            'mt-5 inline-flex h-11 items-center rounded-lg px-4 text-sm font-medium',
             'bg-zinc-900 text-white transition-colors hover:bg-zinc-700',
             'dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-300',
           )}

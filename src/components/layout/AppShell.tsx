@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Building2,
   LogOut,
-  PanelLeft,
   Plus,
   UsersRound,
 } from 'lucide-react'
@@ -66,7 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                    'flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
                     active
                       ? 'bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-950'
                       : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100',
@@ -81,7 +80,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {canCreate && (
               <Link
                 href="/parties/create"
-                className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
               >
                 <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
                 New party
@@ -101,7 +100,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+              className="flex h-11 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 hover:text-red-800 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
             >
               <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
               Sign out
@@ -112,14 +111,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-zinc-200 bg-white/90 px-4 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90 lg:hidden">
             <div className="flex items-center gap-2">
-              <PanelLeft className="h-4 w-4 text-zinc-400" strokeWidth={2} aria-hidden />
-              <span className="text-sm font-semibold">Foundation ERP</span>
+              <Link href="/parties" className="inline-flex h-11 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-900"><UsersRound className="h-4 w-4 text-zinc-500 dark:text-zinc-400" strokeWidth={2} aria-hidden />Parties</Link>
+              {canCreate && (
+                <Link href="/parties/create" aria-label="New party" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
+                  <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
+                </Link>
+              )}
             </div>
             <button
               type="button"
               onClick={handleLogout}
               aria-label="Sign out"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
             >
               <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
             </button>

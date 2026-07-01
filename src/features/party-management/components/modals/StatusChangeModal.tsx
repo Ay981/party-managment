@@ -163,7 +163,7 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
               onClick={closeModal}
               disabled={mutation.isPending}
               className={cn(
-                'inline-flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium',
+                'inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium',
                 'border border-zinc-200 bg-white text-zinc-700 shadow-sm',
                 'hover:bg-zinc-50 hover:text-zinc-900 transition-colors',
                 'dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
@@ -180,7 +180,7 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
               onClick={handleConfirm}
               disabled={mutation.isPending}
               className={cn(
-                'inline-flex h-9 min-w-[110px] items-center justify-center gap-2',
+                'inline-flex h-11 min-w-[110px] items-center justify-center gap-2',
                 'rounded-lg px-4 text-sm font-medium text-white shadow-sm',
                 'transition-colors duration-150',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',

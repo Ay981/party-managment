@@ -82,7 +82,7 @@ function PageHeader({ canCreate }: { canCreate: boolean }) {
         <Link
           href="/parties/create"
           className={cn(
-            'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium',
+            'inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium',
             'border border-zinc-200 bg-white text-zinc-900 shadow-sm',
             'hover:bg-zinc-50 active:bg-zinc-100',
             'transition-colors duration-150',

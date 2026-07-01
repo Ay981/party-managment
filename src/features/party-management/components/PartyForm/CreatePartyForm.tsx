@@ -47,13 +47,13 @@ const DEFAULT_VALUES: CreatePartyFormValues = {
 // ─── Local Field Wrapper ──────────────────────────────────────────────────────
 
 function FormField({
-  label, required, error, hint, children,
+  id, label, required, error, hint, children,
 }: {
-  label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
+  id: string; label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
 }) {
   return (
     <div>
-      <label className="flex items-baseline justify-between">
+      <label htmlFor={id} className="flex items-baseline justify-between">
         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
           {label}{required && <span className="ml-0.5 text-zinc-900">*</span>}
         </span>
@@ -71,10 +71,10 @@ function FormField({
 }
 
 const inputCls = (hasError?: boolean) => cn(
-  'h-9 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
-  'placeholder:text-zinc-300 transition-colors duration-150',
+  'h-11 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
+  'placeholder:text-zinc-500 transition-colors duration-150',
   'focus:outline-none focus:ring-2 focus:ring-offset-0',
-  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600',
+  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-400',
   hasError
     ? 'border-red-300 focus:border-red-400 focus:ring-red-500/20 dark:border-red-800'
     : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
@@ -152,7 +152,7 @@ export function CreatePartyForm() {
         <button
           type="button"
           onClick={() => router.push('/parties')}
-          className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+          className="inline-flex min-h-11 items-center gap-1 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
           Back to parties
@@ -168,15 +168,16 @@ export function CreatePartyForm() {
         {/* ── Section 2 — Party Type ── */}
         <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party type</h2>
-          <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Select one or both roles for this party</p>
+          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Select the transaction roles this master record can use.</p>
 
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {/* Customer toggle */}
             <button
               type="button"
               onClick={() => setValue('isCustomer', !isCustomer, { shouldValidate: true })}
+              aria-pressed={isCustomer}
               className={cn(
-                'relative flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+                'relative flex min-h-24 items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
                 isCustomer
                   ? 'border-sky-400 bg-sky-50 dark:border-sky-600 dark:bg-sky-500/10'
                   : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
@@ -184,7 +185,7 @@ export function CreatePartyForm() {
             >
               <div className={cn(
                 'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                isCustomer ? 'bg-sky-500 text-zinc-900 dark:text-zinc-100' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800',
+                isCustomer ? 'bg-sky-500 text-white' : 'bg-zinc-100 text-sky-600 dark:bg-zinc-800 dark:text-sky-300',
               )}>
                 <ShoppingCart className="h-4 w-4" strokeWidth={2} aria-hidden />
               </div>
@@ -194,7 +195,7 @@ export function CreatePartyForm() {
               </div>
               {isCustomer && (
                 <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500">
-                  <Check className="h-3 w-3 text-zinc-900 dark:text-zinc-100" strokeWidth={3} />
+                  <Check className="h-3 w-3 text-white" strokeWidth={3} />
                 </span>
               )}
             </button>
@@ -203,8 +204,9 @@ export function CreatePartyForm() {
             <button
               type="button"
               onClick={() => setValue('isVendor', !isVendor, { shouldValidate: true })}
+              aria-pressed={isVendor}
               className={cn(
-                'relative flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+                'relative flex min-h-24 items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
                 isVendor
                   ? 'border-zinc-900 bg-white dark:border-zinc-100 dark:bg-zinc-950'
                   : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
@@ -234,6 +236,18 @@ export function CreatePartyForm() {
               {partyTypeError}
             </p>
           )}
+          {(isCustomer || isVendor) && (
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-xs leading-relaxed text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-500 dark:text-zinc-400" strokeWidth={2} aria-hidden />
+              <p>
+                {isCustomer && isVendor
+                  ? 'Dual-role parties require both customer receivable settings and vendor payable settings before transactions can post.'
+                  : isCustomer
+                    ? 'Customer parties require risk level and receivable GL account before sales transactions can post.'
+                    : 'Vendor parties require payment terms and payable GL account before procurement transactions can post.'}
+              </p>
+            </div>
+          )}
         </section>
 
         {/* ── Section 1 — Party Information ── */}
@@ -242,17 +256,18 @@ export function CreatePartyForm() {
           <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Master record details — visible across all companies</p>
 
           <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
-            <FormField label="Party name" required error={errors.partyName?.message}>
-              <input type="text" placeholder="e.g. Addis Trading Co." {...register('partyName')} className={inputCls(!!errors.partyName)} />
+            <FormField id="party-name" label="Party name" required error={errors.partyName?.message}>
+              <input id="party-name" type="text" placeholder="e.g. Addis Trading Co." {...register('partyName')} className={inputCls(!!errors.partyName)} />
             </FormField>
 
-            <FormField label="Contact name" hint="optional" error={errors.contactName?.message}>
-              <input type="text" placeholder="e.g. Aymen Abdulber" {...register('contactName')} className={inputCls(!!errors.contactName)} />
+            <FormField id="contact-name" label="Contact name" hint="optional" error={errors.contactName?.message}>
+              <input id="contact-name" type="text" placeholder="e.g. Aymen Abdulber" {...register('contactName')} className={inputCls(!!errors.contactName)} />
             </FormField>
 
             {/* TIN — BR-05 */}
-            <FormField label="TIN" required hint="10 digits" error={errors.tin?.message}>
+            <FormField id="tin" label="TIN" required hint="10 digits" error={errors.tin?.message}>
               <input
+                id="tin"
                 type="text"
                 inputMode="numeric"
                 maxLength={10}
@@ -262,17 +277,17 @@ export function CreatePartyForm() {
               />
             </FormField>
 
-            <FormField label="Phone" hint="optional" error={errors.phone?.message}>
-              <input type="tel" placeholder="+251 9XX XXX XXX" {...register('phone')} className={inputCls(!!errors.phone)} />
+            <FormField id="phone" label="Phone" hint="optional" error={errors.phone?.message}>
+              <input id="phone" type="tel" placeholder="+251 9XX XXX XXX" {...register('phone')} className={inputCls(!!errors.phone)} />
             </FormField>
 
-            <FormField label="Email" hint="optional" error={errors.email?.message}>
-              <input type="email" placeholder="contact@company.com" {...register('email')} className={inputCls(!!errors.email)} />
+            <FormField id="email" label="Email" hint="optional" error={errors.email?.message}>
+              <input id="email" type="email" placeholder="contact@company.com" {...register('email')} className={inputCls(!!errors.email)} />
             </FormField>
 
             <div className="sm:col-span-2">
-              <FormField label="Address" hint="optional">
-                <textarea rows={2} placeholder="Street, city, region…" {...register('address')} className={cn(inputCls(), 'h-auto resize-none py-2')} />
+              <FormField id="address" label="Address" hint="optional">
+                <textarea id="address" rows={2} placeholder="Street, city, region..." {...register('address')} className={cn(inputCls(), 'h-auto min-h-24 resize-none py-2')} />
               </FormField>
             </div>
           </div>
@@ -286,17 +301,17 @@ export function CreatePartyForm() {
 
         {/* ── Sticky action bar — BR-10 ── */}
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
-          <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3.5">
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              Fields marked <span className="text-zinc-900">*</span> are required
+          <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">
+              Fields marked <span className="font-semibold text-zinc-900 dark:text-zinc-100">*</span> are required. GL and tax fields control downstream posting defaults.
             </p>
-            <div className="flex items-center gap-2.5">
+            <div className="flex w-full items-center justify-end gap-2.5 sm:w-auto">
               <button
                 type="button"
                 onClick={() => router.push('/parties')}
                 disabled={isPending}
                 className={cn(
-                  'inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium',
+                  'inline-flex h-11 items-center rounded-lg px-4 text-sm font-medium',
                   'border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50',
                   'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
                   'disabled:cursor-not-allowed disabled:opacity-50',
@@ -309,8 +324,8 @@ export function CreatePartyForm() {
                 type="submit"
                 disabled={isPending}
                 className={cn(
-                  'inline-flex h-9 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-zinc-950 shadow-sm',
-                  'bg-white hover:bg-zinc-50 active:bg-zinc-100 ring-1 ring-zinc-300 transition-colors dark:bg-white dark:text-zinc-950',
+                  'inline-flex h-11 min-w-[132px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm',
+                  'bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 ring-1 ring-zinc-950 transition-colors dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
                   'disabled:cursor-not-allowed disabled:opacity-60',
                 )}
