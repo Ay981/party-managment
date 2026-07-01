@@ -2,16 +2,42 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import {
   Building2,
   LogOut,
+  Moon,
   Plus,
+  Sun,
   UsersRound,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth.store'
 import { Permission } from '@/types/auth.types'
+
+function ThemeToggle({ className }: { className?: string }) {
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
+  return (
+    <button
+      type="button"
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className={cn(
+        'inline-flex items-center justify-center rounded-lg text-zinc-500',
+        'transition-[background-color,transform] duration-150 active:scale-[0.97]',
+        'hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100',
+        className,
+      )}
+    >
+      {isDark
+        ? <Sun  className="h-4 w-4" strokeWidth={2} aria-hidden />
+        : <Moon className="h-4 w-4" strokeWidth={2} aria-hidden />}
+    </button>
+  )
+}
 
 const navItems = [
   { href: '/parties', label: 'Parties', icon: UsersRound },
@@ -97,14 +123,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {session ? formatRole(session.role) : ''}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-red-700 transition-[background-color,transform] duration-150 active:scale-[0.97] hover:bg-red-50 hover:text-red-800 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
-            >
-              <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
-              Sign out
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex h-9 flex-1 items-center gap-2 rounded-lg px-3 text-sm font-medium text-red-700 transition-[background-color,transform] duration-150 active:scale-[0.97] hover:bg-red-50 hover:text-red-800 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
+              >
+                <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
+                Sign out
+              </button>
+              <ThemeToggle className="size-9" />
+            </div>
           </div>
         </aside>
 
@@ -133,14 +162,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               )}
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              aria-label="Sign out"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition-[background-color,transform] duration-150 active:scale-[0.97] hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-            >
-              <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
-            </button>
+            <div className="flex items-center gap-1">
+              <ThemeToggle className="size-9" />
+              <button
+                type="button"
+                onClick={handleLogout}
+                aria-label="Sign out"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition-[background-color,transform] duration-150 active:scale-[0.97] hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              >
+                <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
+              </button>
+            </div>
           </header>
 
           <main className="mx-auto max-w-7xl">{children}</main>

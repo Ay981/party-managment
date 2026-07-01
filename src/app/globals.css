@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
+/* ── Class-based dark mode (next-themes sets class="dark" on <html>) ── */
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: oklch(0.967 0.004 255);
   --foreground: oklch(0.21 0.008 255);
@@ -70,15 +73,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: oklch(0.16 0.006 255);
-    --foreground: oklch(0.92 0.004 255);
-  }
+/* Dark mode CSS variables — triggered by .dark class on <html> */
+.dark {
+  --background: oklch(0.16 0.006 255);
+  --foreground: oklch(0.92 0.004 255);
 }
 
 /* ── Shadow elevation tokens ─────────────────────────────────────── */
-/* Light: three-layer — ring + lift + depth. Dark: single rgba ring. */
 :root {
   --shadow-elevation:
     0px 0px 0px 1px rgba(0, 0, 0, 0.06),
@@ -96,12 +97,10 @@
     0px 4px 10px 0px rgba(0, 0, 0, 0.05);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --shadow-elevation:      0 0 0 1px rgba(255, 255, 255, 0.08);
-    --shadow-elevation-hover: 0 0 0 1px rgba(255, 255, 255, 0.13);
-    --shadow-elevation-md:   0 0 0 1px rgba(255, 255, 255, 0.10);
-  }
+.dark {
+  --shadow-elevation:       0 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-elevation-hover: 0 0 0 1px rgba(255, 255, 255, 0.13);
+  --shadow-elevation-md:    0 0 0 1px rgba(255, 255, 255, 0.10);
 }
 
 body {
