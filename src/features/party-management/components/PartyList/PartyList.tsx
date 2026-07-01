@@ -82,14 +82,15 @@ function PageHeader({ canCreate }: { canCreate: boolean }) {
         <Link
           href="/parties/create"
           className={cn(
-            'inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium',
-            'border border-zinc-200 bg-white text-zinc-900 shadow-sm',
-            'hover:bg-zinc-50 active:bg-zinc-100',
+            'inline-flex h-9 items-center gap-2 rounded-lg px-3.5 text-sm font-medium',
+            'bg-zinc-900 text-white shadow-sm',
+            'hover:bg-zinc-800 active:bg-zinc-700',
             'transition-colors duration-150',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-2',
+            'dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:active:bg-zinc-200',
           )}
         >
-          <Plus className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
           New party
         </Link>
       )}
@@ -139,10 +140,13 @@ export function PartyList() {
   }
 
   return (
-    <div className="space-y-5 p-6">
-      <PageHeader canCreate={canCreate} />
+    <div className="space-y-4 p-3 sm:p-5 lg:p-6">
+      {/* Hidden on mobile — AppShell header already provides nav + new-party shortcut */}
+      <div className="hidden lg:block">
+        <PageHeader canCreate={canCreate} />
+      </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="rounded-xl bg-white p-4 shadow-elevation dark:bg-zinc-950">
         <PartyFilters
           totalResults={data?.pagination.total}
           isFetching={isFetching}

@@ -101,10 +101,10 @@ export function CustomerProfileSection({ party }: CustomerProfileSectionProps) {
   const profile = party.customerProfile
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <section className="rounded-xl bg-white shadow-elevation dark:bg-zinc-950">
       {/* sky accent ties back to PartyRoleBadge customer color */}
       <div className="flex items-center gap-2.5 border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-sky-50 dark:bg-sky-500/10">
+        <div className="flex size-7 items-center justify-center rounded-md bg-sky-50 dark:bg-sky-500/10">
           <ShoppingCart className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" strokeWidth={2} aria-hidden />
         </div>
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Customer profile</h2>
@@ -115,7 +115,7 @@ export function CustomerProfileSection({ party }: CustomerProfileSectionProps) {
         <EmptyProfile />
       ) : (
         <div className="space-y-5 px-5 py-5">
-          <div className="flex items-center justify-between rounded-lg bg-zinc-50 px-3.5 py-2.5 dark:bg-zinc-900">
+          <div className="flex items-center justify-between rounded-lg bg-zinc-50 px-3.5 py-2.5 ring-1 ring-zinc-100 dark:bg-zinc-900 dark:ring-white/5">
             <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Customer status</span>
             <span className={cn(
               'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset',

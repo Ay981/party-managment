@@ -29,8 +29,8 @@ function AuthFrame({
 }) {
   return (
     <PublicAuthRoute>
-      <div className="min-h-screen bg-zinc-950 text-white">
-        <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.9fr)_minmax(520px,1.1fr)]">
+      <div className="min-h-dvh bg-zinc-950 text-white">
+        <div className="grid min-h-dvh lg:grid-cols-[minmax(0,0.9fr)_minmax(520px,1.1fr)]">
           <section className="relative hidden border-r border-white/10 bg-zinc-950 p-10 lg:flex lg:flex-col lg:justify-between">
             <div>
               <div className="flex items-center gap-3">
@@ -65,7 +65,7 @@ function AuthFrame({
             </div>
           </section>
 
-          <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-10 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
+          <main className="flex min-h-dvh items-center justify-center bg-zinc-50 px-4 py-10 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
             <div className="w-full max-w-md">
               <div className="mb-8 lg:hidden">
                 <div className="flex items-center gap-3">
@@ -79,7 +79,7 @@ function AuthFrame({
                 </div>
               </div>
 
-              <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+              <div className="rounded-xl bg-white p-6 shadow-elevation dark:bg-zinc-950">
                 <div className="mb-6">
                   <p className="text-xs font-medium uppercase text-zinc-400">
                     {mode === 'login' ? 'Welcome back' : 'Demo workspace access'}
@@ -121,10 +121,11 @@ function Field({
 
 function inputClass(withIcon = true) {
   return cn(
-    'h-11 w-full rounded-lg border border-zinc-200 bg-white text-sm text-zinc-950 shadow-sm',
-    'placeholder:text-zinc-500 transition-colors',
-    'focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/15',
-    'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder:text-zinc-400',
+    'h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50 text-sm text-zinc-950',
+    'placeholder:text-zinc-400 transition-[border-color,box-shadow] duration-150',
+    'focus:border-zinc-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
+    'dark:border-zinc-700 dark:bg-zinc-800/60 dark:text-zinc-50 dark:placeholder:text-zinc-500',
+    'dark:focus:border-zinc-500 dark:focus:bg-zinc-800',
     withIcon ? 'pl-10 pr-3' : 'px-3',
   )
 }
@@ -224,7 +225,7 @@ export function LoginPageClient() {
         <button
           type="submit"
           disabled={isLoading}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition-[transform,background-color] duration-150 hover:bg-zinc-800 active:scale-[0.98] active:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 dark:active:bg-zinc-300"
         >
           {isLoading ? 'Signing in...' : 'Sign in'}
           {!isLoading && <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden />}
@@ -325,7 +326,7 @@ export function RegisterPageClient() {
         <button
           type="submit"
           disabled={isLoading}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition-[transform,background-color] duration-150 hover:bg-zinc-800 active:scale-[0.98] active:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 dark:active:bg-zinc-300"
         >
           {isLoading ? 'Creating account...' : 'Create demo account'}
           {!isLoading && <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden />}

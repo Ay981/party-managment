@@ -53,10 +53,10 @@ function FormField({
 }
 
 const inputCls = (hasError?: boolean) => cn(
-  'h-11 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
-  'placeholder:text-zinc-500 transition-colors duration-150',
-  'focus:outline-none focus:ring-2 focus:ring-offset-0',
-  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-400',
+  'h-10 w-full rounded-lg border bg-zinc-50 px-3 text-sm text-zinc-900',
+  'placeholder:text-zinc-400 transition-[border-color,background-color,box-shadow] duration-150',
+  'focus:bg-white focus:outline-none focus:ring-2 focus:ring-offset-0',
+  'dark:bg-zinc-800/60 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:bg-zinc-800',
   hasError
     ? 'border-red-300 focus:border-red-400 focus:ring-red-500/20 dark:border-red-800'
     : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
@@ -239,7 +239,7 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
       )}
 
       {/* Contact information */}
-      <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+      <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Contact information</h2>
 
         <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
@@ -279,59 +279,82 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
       </section>
 
       {/* Roles & status */}
-      <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+      <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Roles & status</h2>
         <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">At least one role must remain selected</p>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+          {/* Customer row */}
           <button
             type="button"
             onClick={() => setValue('isCustomer', !isCustomer, { shouldValidate: true, shouldDirty: true })}
             aria-pressed={isCustomer}
             className={cn(
-              'relative flex min-h-24 items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+              'flex w-full items-center gap-3 px-4 py-3.5 text-left',
+              'transition-[background-color] duration-150',
               isCustomer
-                ? 'border-sky-400 bg-sky-50 dark:border-sky-600 dark:bg-sky-500/10'
-                : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
+                ? 'bg-sky-50 dark:bg-sky-500/10'
+                : 'bg-white hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900/60',
             )}
           >
-            <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', isCustomer ? 'bg-sky-500 text-white' : 'bg-zinc-100 text-sky-600 dark:bg-zinc-800 dark:text-sky-300')}>
+            <div className={cn(
+              'flex size-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150',
+              isCustomer ? 'bg-sky-500 text-white' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500',
+            )}>
               <ShoppingCart className="h-4 w-4" strokeWidth={2} aria-hidden />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Customer</p>
-              <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Buys from your company</p>
+            <div className="flex-1 min-w-0">
+              <p className={cn('text-sm font-medium leading-tight', isCustomer ? 'text-sky-700 dark:text-sky-300' : 'text-zinc-800 dark:text-zinc-200')}>
+                Customer
+              </p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">Buys from your company</p>
             </div>
-            {isCustomer && (
-              <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500">
-                <Check className="h-3 w-3 text-white" strokeWidth={3} />
-              </span>
-            )}
+            <div className={cn(
+              'flex size-5 shrink-0 items-center justify-center rounded transition-colors duration-150',
+              isCustomer
+                ? 'bg-sky-500 text-white'
+                : 'border border-zinc-300 dark:border-zinc-600',
+            )}>
+              {isCustomer && <Check className="h-3 w-3" strokeWidth={3} />}
+            </div>
           </button>
 
+          {/* Divider */}
+          <div className="border-t border-zinc-100 dark:border-zinc-800" />
+
+          {/* Vendor row */}
           <button
             type="button"
             onClick={() => setValue('isVendor', !isVendor, { shouldValidate: true, shouldDirty: true })}
             aria-pressed={isVendor}
             className={cn(
-              'relative flex min-h-24 items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+              'flex w-full items-center gap-3 px-4 py-3.5 text-left',
+              'transition-[background-color] duration-150',
               isVendor
-                ? 'border-zinc-900 bg-white dark:border-zinc-100 dark:bg-zinc-950'
-                : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
+                ? 'bg-zinc-900/5 dark:bg-zinc-100/5'
+                : 'bg-white hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900/60',
             )}
           >
-            <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', isVendor ? 'bg-white text-zinc-900 ring-1 ring-zinc-300 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-zinc-700' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800')}>
+            <div className={cn(
+              'flex size-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150',
+              isVendor ? 'bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500',
+            )}>
               <Building2 className="h-4 w-4" strokeWidth={2} aria-hidden />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Vendor</p>
-              <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Sells to your company</p>
+            <div className="flex-1 min-w-0">
+              <p className={cn('text-sm font-medium leading-tight', isVendor ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-800 dark:text-zinc-200')}>
+                Vendor
+              </p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">Sells to your company</p>
             </div>
-            {isVendor && (
-              <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-white ring-1 ring-zinc-300 dark:bg-zinc-950 dark:ring-zinc-700">
-                <Check className="h-3 w-3 text-white" strokeWidth={3} />
-              </span>
-            )}
+            <div className={cn(
+              'flex size-5 shrink-0 items-center justify-center rounded transition-colors duration-150',
+              isVendor
+                ? 'bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900'
+                : 'border border-zinc-300 dark:border-zinc-600',
+            )}>
+              {isVendor && <Check className="h-3 w-3" strokeWidth={3} />}
+            </div>
           </button>
         </div>
 
@@ -352,16 +375,17 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
             type="button"
             role="switch"
             aria-checked={isActive}
+            aria-label={isActive ? 'Active — click to deactivate' : 'Inactive — click to activate'}
             onClick={() => setValue('isActive', !isActive, { shouldDirty: true })}
             className={cn(
-              'relative h-11 w-16 shrink-0 rounded-full transition-colors duration-200',
-              isActive ? 'bg-emerald-500' : 'bg-zinc-200 dark:bg-zinc-700',
+              'relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200',
+              isActive ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600',
             )}
           >
-            <span className={cn(
-              'absolute top-2 h-7 w-7 rounded-full bg-white shadow transition-transform duration-200',
-              isActive ? 'translate-x-[30px]' : 'translate-x-1.5',
-            )} />
+            <span
+              className="absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform duration-200"
+              style={{ transform: isActive ? 'translateX(20px)' : 'translateX(0px)' }}
+            />
           </button>
         </div>
       </section>
@@ -382,8 +406,9 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
               onClick={() => router.push(`/parties/${partyId}`)}
               disabled={isPending}
               className={cn(
-                'inline-flex h-11 items-center rounded-lg px-4 text-sm font-medium',
-                'border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50',
+                'inline-flex h-9 items-center rounded-lg px-3.5 text-sm font-medium',
+                'border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50',
+                'transition-[background-color,transform] duration-150 active:scale-[0.97]',
                 'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
                 'disabled:cursor-not-allowed disabled:opacity-50',
               )}
@@ -395,8 +420,10 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
               type="submit"
               disabled={isPending || !isDirty}
               className={cn(
-                'inline-flex h-11 min-w-[142px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm',
-                'bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 ring-1 ring-zinc-950 transition-colors dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white',
+                'inline-flex h-9 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white',
+                'bg-zinc-950 hover:bg-zinc-800 active:scale-[0.97]',
+                'transition-[background-color,transform] duration-150',
+                'dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white dark:active:bg-zinc-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
                 'disabled:cursor-not-allowed disabled:opacity-60',
               )}

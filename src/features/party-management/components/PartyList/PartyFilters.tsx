@@ -1,23 +1,6 @@
-// src/features/party-management/components/PartyList/PartyFilters.tsx
-//
-// Filter bar for the party list page.
-// Reads and writes filter state via usePartyStore.
-//
-// Controls:
-//   - Search input  (name, TIN, phone) — US-03 Filters
-//   - Customer Only checkbox           — US-03 Filters
-//   - Vendor Only checkbox             — US-03 Filters
-//   - Active Status dropdown           — US-03 Filters
-//   - Per Page dropdown                — US-03 Filters
-//
-// Reference:
-//   US-03 Filters Section
-//   US-03 "Search triggers on Search button click or Enter key press"
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
-import { useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, X, SlidersHorizontal } from 'lucide-react'
 
 import { cn }                                     from '@/lib/utils'
@@ -25,9 +8,9 @@ import { usePartyStore, selectStatusFilter }       from '@/store/party.store'
 import { ActiveStatusFilter, type PerPageOption } from '@/types/party.types'
 
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Filter Chip ──────────────────────────────────────────────────────────────
 
-function FilterCheckbox({
+function FilterChip({
   id,
   label,
   checked,
@@ -44,11 +27,13 @@ function FilterCheckbox({
     <label
       htmlFor={id}
       className={cn(
-        'relative inline-flex min-h-11 cursor-pointer select-none items-center gap-2',
-        'rounded-md border px-3.5 py-2 text-sm font-medium transition-all duration-150',
-        checked && accent === 'sky'    && 'border-sky-400 bg-sky-50 text-sky-700 dark:border-sky-600 dark:bg-sky-500/10 dark:text-sky-400',
-        checked && accent === 'neutral' && 'border-zinc-900 bg-white text-zinc-900 dark:border-zinc-100 dark:bg-zinc-950 dark:text-zinc-100',
-        !checked && 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600',
+        'relative inline-flex cursor-pointer select-none items-center whitespace-nowrap',
+        'h-8 rounded-full border px-3 text-xs font-medium transition-all duration-150',
+        checked && accent === 'sky'
+          ? 'border-sky-400 bg-sky-50 text-sky-700 dark:border-sky-500 dark:bg-sky-500/10 dark:text-sky-400'
+          : checked && accent === 'neutral'
+            ? 'border-zinc-800 bg-zinc-900 text-white dark:border-zinc-300 dark:bg-zinc-100 dark:text-zinc-900'
+            : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-300',
       )}
     >
       <input
@@ -56,23 +41,8 @@ function FilterCheckbox({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-        aria-label={label}
+        className="sr-only"
       />
-      <span
-        className={cn(
-          'flex h-3.5 w-3.5 items-center justify-center rounded-sm border transition-colors',
-          checked && accent === 'sky'    && 'border-sky-500 bg-sky-500',
-          checked && accent === 'neutral' && 'border-zinc-900 bg-white dark:border-zinc-100 dark:bg-zinc-950',
-          !checked && 'border-zinc-300 dark:border-zinc-600',
-        )}
-      >
-        {checked && (
-          <svg viewBox="0 0 10 8" className={cn('h-2 w-2 fill-none stroke-2', accent === 'neutral' ? 'stroke-zinc-900 dark:stroke-zinc-100' : 'stroke-white')}>
-            <path d="M1 4l2.5 2.5L9 1" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        )}
-      </span>
       {label}
     </label>
   )
@@ -98,23 +68,39 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
   } = usePartyStore()
 
   const statusFilter = usePartyStore(selectStatusFilter)
+  const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [inputValue, setInputValue] = useState(filters.search)
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  // Sync input when filters are reset externally (e.g. "Clear filters" in empty state)
+  useEffect(() => { setInputValue(filters.search) }, [filters.search])
 
-  const handleSearch = () => applySearch(inputRef.current?.value ?? '')
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setInputValue(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => applySearch(value), 350)
+  }
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearch()
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      applySearch(inputValue)
+    }
+    if (e.key === 'Escape') {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      setInputValue('')
+      applySearch('')
+    }
   }
 
   const handleClearSearch = () => {
-    if (inputRef.current) inputRef.current.value = ''
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    setInputValue('')
     applySearch('')
-    inputRef.current?.focus()
   }
 
   const handleResetFilters = () => {
-    if (inputRef.current) inputRef.current.value = ''
+    if (debounceRef.current) clearTimeout(debounceRef.current)
     resetFilters()
   }
 
@@ -132,156 +118,172 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
     { label: 'Inactive',     value: ActiveStatusFilter.INACTIVE },
   ]
 
+  const statusActive = statusFilter !== ActiveStatusFilter.ALL
+
   return (
-    <div className="space-y-3">
-      {/* Top row — search + per-page */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[220px] max-w-sm flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
-            strokeWidth={2}
-            aria-hidden
-          />
-          <input
-            ref={inputRef}
-            type="text"
-            key={filters.search}
-            defaultValue={filters.search}
-            onKeyDown={handleSearchKeyDown}
-            placeholder="Search by name, TIN, or phone…"
-            aria-label="Search parties"
-            className={cn(
-              'h-11 w-full rounded-lg border border-zinc-200 bg-white pl-9 pr-11 text-sm',
-              'text-zinc-900 placeholder:text-zinc-400',
-              'transition-shadow duration-150',
-              'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
-              'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500',
-            )}
-          />
-          {filters.search && (
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              aria-label="Clear search"
-              className="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-            >
-              <X className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
+    <div className="space-y-2.5">
+
+      {/* ── Search ─────────────────────────────────────────────────────── */}
+      <div className="relative">
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
+          strokeWidth={2}
+          aria-hidden
+        />
+        <input
+          type="search"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Search by name, TIN, or phone…"
+          aria-label="Search parties"
+          autoComplete="off"
+          className={cn(
+            'h-10 w-full rounded-lg border border-zinc-200 bg-white',
+            'pl-9 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400',
+            'transition-shadow duration-150',
+            'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
+            'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500',
+            '[&::-webkit-search-cancel-button]:hidden',
           )}
+        />
+        {inputValue && (
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            aria-label="Clear search"
+            className={cn(
+              'absolute right-0 top-1/2 -translate-y-1/2',
+              'inline-flex h-10 w-10 items-center justify-center rounded-r-lg',
+              'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
+              'transition-colors',
+            )}
+          >
+            <X className="h-3.5 w-3.5" strokeWidth={2} />
+          </button>
+        )}
+      </div>
+
+      {/* ── Filters row ─────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2">
+
+        {/* Left: horizontally scrollable chip strip */}
+        <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
+          <div className="flex w-max items-center gap-1.5">
+
+            <SlidersHorizontal
+              className="h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+              strokeWidth={2}
+              aria-hidden
+            />
+
+            <FilterChip
+              id="filter-customer"
+              label="Customer"
+              checked={filters.isCustomer === true}
+              onChange={toggleCustomerFilter}
+              accent="sky"
+            />
+
+            <FilterChip
+              id="filter-vendor"
+              label="Vendor"
+              checked={filters.isVendor === true}
+              onChange={toggleVendorFilter}
+              accent="neutral"
+            />
+
+            <div className="mx-0.5 h-4 w-px shrink-0 bg-zinc-200 dark:bg-zinc-700" aria-hidden />
+
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value as ActiveStatusFilter)}
+              aria-label="Filter by status"
+              className={cn(
+                'h-8 cursor-pointer rounded-full border px-3 pr-7 text-xs whitespace-nowrap',
+                'focus:outline-none focus:ring-2 focus:ring-zinc-500/15 transition-colors duration-150',
+                statusActive
+                  ? 'border-zinc-800 bg-zinc-900 text-white dark:border-zinc-300 dark:bg-zinc-100 dark:text-zinc-900'
+                  : 'border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300',
+              )}
+            >
+              {STATUS_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className={cn(
+                  'inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-xs font-medium whitespace-nowrap',
+                  'border border-dashed border-zinc-300 text-zinc-500',
+                  'transition-colors hover:border-zinc-400 hover:bg-zinc-50 hover:text-zinc-700',
+                  'dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-300',
+                )}
+              >
+                <X className="h-3 w-3" strokeWidth={2.5} />
+                Clear
+              </button>
+            )}
+
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSearch}
-          disabled={isFetching}
-          className={cn(
-            'inline-flex h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-medium',
-            'border border-zinc-200 bg-white text-zinc-900 shadow-sm',
-            'hover:bg-zinc-50 active:bg-zinc-100',
-            'transition-colors duration-150',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
-            isFetching && 'cursor-wait opacity-70',
+        {/* Right: static controls */}
+        <div className="flex shrink-0 items-center gap-2">
+          {totalResults !== undefined && (
+            <p className="hidden whitespace-nowrap text-xs text-zinc-400 sm:block dark:text-zinc-500">
+              {isFetching ? (
+                <span className="animate-pulse">…</span>
+              ) : (
+                <>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-300">
+                    {totalResults.toLocaleString()}
+                  </span>
+                  {' '}{totalResults === 1 ? 'result' : 'results'}
+                </>
+              )}
+            </p>
           )}
-        >
-          <Search className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-          Search
-        </button>
 
-        <div className="flex-1" />
-
-        <div className="flex items-center gap-2">
-          <label htmlFor="per-page" className="whitespace-nowrap text-xs text-zinc-500 dark:text-zinc-400">
-            Rows per page
-          </label>
           <select
             id="per-page"
             value={filters.perPage}
             onChange={e => setFilter('perPage', Number(e.target.value) as PerPageOption)}
+            aria-label="Rows per page"
+            title="Rows per page"
             className={cn(
-              'h-11 cursor-pointer rounded-lg border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700',
+              'h-8 cursor-pointer rounded-md border border-zinc-200 bg-white px-2 text-xs text-zinc-600',
               'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
               'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300',
             )}
           >
             {PER_PAGE_OPTIONS.map(n => (
-              <option key={n} value={n}>{n}</option>
+              <option key={n} value={n}>{n} / pg</option>
             ))}
           </select>
         </div>
+
       </div>
 
-      {/* Bottom row — role checkboxes + status dropdown + clear */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 dark:text-zinc-500">
-          <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-          Filter by
-        </div>
-
-        <FilterCheckbox
-          id="filter-customer"
-          label="Customer"
-          checked={filters.isCustomer === true}
-          onChange={toggleCustomerFilter}
-          accent="sky"
-        />
-
-        <FilterCheckbox
-          id="filter-vendor"
-          label="Vendor"
-          checked={filters.isVendor === true}
-          onChange={toggleVendorFilter}
-          accent="neutral"
-        />
-
-        <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" aria-hidden />
-
-        <select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value as ActiveStatusFilter)}
-          aria-label="Filter by status"
-          className={cn(
-            'h-11 cursor-pointer rounded-md border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700',
-            'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
-            'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300',
+      {/* Mobile-only result count (hidden on sm+, where it appears inline above) */}
+      {totalResults !== undefined && (
+        <p className="text-xs text-zinc-400 sm:hidden dark:text-zinc-500">
+          {isFetching ? (
+            <span className="animate-pulse">Loading…</span>
+          ) : (
+            <>
+              <span className="font-medium text-zinc-600 dark:text-zinc-300">
+                {totalResults.toLocaleString()}
+              </span>
+              {' '}{totalResults === 1 ? 'result' : 'results'}
+            </>
           )}
-        >
-          {STATUS_OPTIONS.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
+        </p>
+      )}
 
-        <div className="flex-1" />
-
-        {totalResults !== undefined && (
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">
-            {isFetching ? (
-              <span className="animate-pulse">Loading…</span>
-            ) : (
-              <>
-                <span className="font-medium text-zinc-600 dark:text-zinc-300">
-                  {totalResults.toLocaleString()}
-                </span>{' '}
-                {totalResults === 1 ? 'result' : 'results'}
-              </>
-            )}
-          </p>
-        )}
-
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className={cn(
-              'inline-flex min-h-11 items-center gap-1 rounded-md px-3 text-xs font-medium',
-              'text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700',
-              'dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300',
-            )}
-          >
-            <X className="h-3 w-3" strokeWidth={2.5} />
-            Clear filters
-          </button>
-        )}
-      </div>
     </div>
   )
 }

@@ -88,7 +88,7 @@ export function GLAccountSection({ party }: GLAccountSectionProps) {
   const hasAnyAccount = !!receivableAccount || !!payableAccount
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <section className="rounded-xl bg-white shadow-elevation dark:bg-zinc-950">
       <div className="flex items-center gap-2.5 border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-100 dark:bg-zinc-800">
           <Landmark className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" strokeWidth={2} aria-hidden />

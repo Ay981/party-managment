@@ -153,7 +153,7 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
       </Link>
 
       {/* ── Header card — Sections 2 & 3 ── */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="rounded-xl bg-white p-6 shadow-elevation dark:bg-zinc-950">
         <div className="flex flex-wrap items-start justify-between gap-4">
 
           {/* Identity block */}
@@ -177,8 +177,9 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
               <Link
                 href={`/parties/${party.id}/edit`}
                 className={cn(
-                  'inline-flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium',
-                  'border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors',
+                  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium',
+                  'border border-zinc-200 bg-white text-zinc-700',
+                  'transition-[background-color,transform] duration-150 hover:bg-zinc-50 active:scale-[0.97]',
                   'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
                 )}
               >
@@ -194,7 +195,8 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
                   id: party.id, partyName: party.partyName, tin: party.tin,
                 })}
                 className={cn(
-                  'inline-flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium shadow-sm transition-colors',
+                  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium',
+                  'transition-[background-color,transform] duration-150 active:scale-[0.97]',
                   party.isActive
                     ? 'border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-500/10 dark:text-amber-400'
                     : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
@@ -212,7 +214,8 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
                 type="button"
                 onClick={() => openModal('delete', { id: party.id, partyName: party.partyName, tin: party.tin })}
                 className={cn(
-                  'inline-flex h-11 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium shadow-sm transition-colors',
+                  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium',
+                  'transition-[background-color,transform] duration-150 active:scale-[0.97]',
                   'border border-red-200 bg-red-50 text-red-600 hover:bg-red-100',
                   'dark:border-red-900 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20',
                 )}

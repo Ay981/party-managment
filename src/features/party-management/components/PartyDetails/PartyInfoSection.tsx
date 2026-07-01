@@ -62,7 +62,7 @@ interface PartyInfoSectionProps {
 
 export function PartyInfoSection({ party }: PartyInfoSectionProps) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <section className="rounded-xl bg-white shadow-elevation dark:bg-zinc-950">
       <div className="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party information</h2>
         <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Master record details for this party</p>

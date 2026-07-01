@@ -51,18 +51,21 @@ function FormField({
 }: {
   id: string; label: string; required?: boolean; error?: string; hint?: string; children: React.ReactNode
 }) {
+  const errorId = error ? `${id}-error` : undefined
   return (
     <div>
       <label htmlFor={id} className="flex items-baseline justify-between">
         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-          {label}{required && <span className="ml-0.5 text-zinc-900">*</span>}
+          {label}{required && <span className="ml-0.5 text-red-500" aria-hidden>*</span>}
+          {required && <span className="sr-only">(required)</span>}
         </span>
         {hint && <span className="text-[11px] text-zinc-400 dark:text-zinc-600">{hint}</span>}
       </label>
-      <div className="mt-1.5">{children}</div>
+      {/* Clone child to inject aria-describedby + aria-invalid when there's an error */}
+      <div className="mt-1.5" data-error-id={errorId}>{children}</div>
       {error && (
-        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500 dark:text-red-400">
-          <AlertCircle className="h-3 w-3 shrink-0" strokeWidth={2} />
+        <p id={errorId} role="alert" className="mt-1 flex items-center gap-1 text-xs text-red-500 dark:text-red-400">
+          <AlertCircle className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
           {error}
         </p>
       )}
@@ -71,10 +74,10 @@ function FormField({
 }
 
 const inputCls = (hasError?: boolean) => cn(
-  'h-11 w-full rounded-lg border bg-white px-3 text-sm text-zinc-900',
-  'placeholder:text-zinc-500 transition-colors duration-150',
-  'focus:outline-none focus:ring-2 focus:ring-offset-0',
-  'dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-400',
+  'h-10 w-full rounded-lg border bg-zinc-50 px-3 text-sm text-zinc-900',
+  'placeholder:text-zinc-400 transition-[border-color,background-color,box-shadow] duration-150',
+  'focus:bg-white focus:outline-none focus:ring-2 focus:ring-offset-0',
+  'dark:bg-zinc-800/60 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:bg-zinc-800',
   hasError
     ? 'border-red-300 focus:border-red-400 focus:ring-red-500/20 dark:border-red-800'
     : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
@@ -152,7 +155,7 @@ export function CreatePartyForm() {
         <button
           type="button"
           onClick={() => router.push('/parties')}
-          className="inline-flex min-h-11 items-center gap-1 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          className="inline-flex h-9 items-center gap-1 text-xs font-medium text-zinc-500 transition-[color,transform] duration-150 active:scale-[0.97] hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
           Back to parties
@@ -166,67 +169,78 @@ export function CreatePartyForm() {
         </div>
 
         {/* ── Section 2 — Party Type ── */}
-        <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+        {/* shadow-elevation replaces hard border; toggle buttons use rounded-lg (concentric: section=xl p-5=20px → child=lg=8px) */}
+        <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party type</h2>
           <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Select the transaction roles this master record can use.</p>
 
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {/* Customer toggle */}
+          <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+            {/* Customer row */}
             <button
               type="button"
               onClick={() => setValue('isCustomer', !isCustomer, { shouldValidate: true })}
               aria-pressed={isCustomer}
               className={cn(
-                'relative flex min-h-24 items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+                'flex w-full items-center gap-3 px-4 py-3.5 text-left',
+                'transition-[background-color] duration-150',
                 isCustomer
-                  ? 'border-sky-400 bg-sky-50 dark:border-sky-600 dark:bg-sky-500/10'
-                  : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
+                  ? 'bg-sky-50 dark:bg-sky-500/10'
+                  : 'bg-white hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900/60',
               )}
             >
               <div className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                isCustomer ? 'bg-sky-500 text-white' : 'bg-zinc-100 text-sky-600 dark:bg-zinc-800 dark:text-sky-300',
+                'flex size-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150',
+                isCustomer ? 'bg-sky-500 text-white' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500',
               )}>
                 <ShoppingCart className="h-4 w-4" strokeWidth={2} aria-hidden />
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Customer</p>
-                <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">This party buys from your company</p>
+              <div className="flex-1 min-w-0">
+                <p className={cn('text-sm font-medium leading-tight', isCustomer ? 'text-sky-700 dark:text-sky-300' : 'text-zinc-800 dark:text-zinc-200')}>
+                  Customer
+                </p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">Buys from your company</p>
               </div>
-              {isCustomer && (
-                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500">
-                  <Check className="h-3 w-3 text-white" strokeWidth={3} />
-                </span>
-              )}
+              <div className={cn(
+                'flex size-5 shrink-0 items-center justify-center rounded transition-colors duration-150',
+                isCustomer ? 'bg-sky-500 text-white' : 'border border-zinc-300 dark:border-zinc-600',
+              )}>
+                {isCustomer && <Check className="h-3 w-3" strokeWidth={3} />}
+              </div>
             </button>
 
-            {/* Vendor toggle */}
+            <div className="border-t border-zinc-100 dark:border-zinc-800" />
+
+            {/* Vendor row */}
             <button
               type="button"
               onClick={() => setValue('isVendor', !isVendor, { shouldValidate: true })}
               aria-pressed={isVendor}
               className={cn(
-                'relative flex min-h-24 items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
+                'flex w-full items-center gap-3 px-4 py-3.5 text-left',
+                'transition-[background-color] duration-150',
                 isVendor
-                  ? 'border-zinc-900 bg-white dark:border-zinc-100 dark:bg-zinc-950'
-                  : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900',
+                  ? 'bg-zinc-900/5 dark:bg-zinc-100/5'
+                  : 'bg-white hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900/60',
               )}
             >
               <div className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                isVendor ? 'bg-white text-zinc-900 ring-1 ring-zinc-300 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-zinc-700' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800',
+                'flex size-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150',
+                isVendor ? 'bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500',
               )}>
                 <Building2 className="h-4 w-4" strokeWidth={2} aria-hidden />
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Vendor</p>
-                <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Your company buys from this party</p>
+              <div className="flex-1 min-w-0">
+                <p className={cn('text-sm font-medium leading-tight', isVendor ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-800 dark:text-zinc-200')}>
+                  Vendor
+                </p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">Sells to your company</p>
               </div>
-              {isVendor && (
-                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-white ring-1 ring-zinc-300 dark:bg-zinc-950 dark:ring-zinc-700">
-                  <Check className="h-3 w-3 text-zinc-900 dark:text-zinc-100" strokeWidth={3} />
-                </span>
-              )}
+              <div className={cn(
+                'flex size-5 shrink-0 items-center justify-center rounded transition-colors duration-150',
+                isVendor ? 'bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900' : 'border border-zinc-300 dark:border-zinc-600',
+              )}>
+                {isVendor && <Check className="h-3 w-3" strokeWidth={3} />}
+              </div>
             </button>
           </div>
 
@@ -251,7 +265,7 @@ export function CreatePartyForm() {
         </section>
 
         {/* ── Section 1 — Party Information ── */}
-        <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+        <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party information</h2>
           <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Master record details — visible across all companies</p>
 
@@ -311,8 +325,9 @@ export function CreatePartyForm() {
                 onClick={() => router.push('/parties')}
                 disabled={isPending}
                 className={cn(
-                  'inline-flex h-11 items-center rounded-lg px-4 text-sm font-medium',
-                  'border border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50',
+                  'inline-flex h-9 items-center rounded-lg px-3.5 text-sm font-medium',
+                  'border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50',
+                  'transition-[background-color,transform] duration-150 active:scale-[0.97]',
                   'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
                   'disabled:cursor-not-allowed disabled:opacity-50',
                 )}
@@ -324,8 +339,10 @@ export function CreatePartyForm() {
                 type="submit"
                 disabled={isPending}
                 className={cn(
-                  'inline-flex h-11 min-w-[132px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white shadow-sm',
-                  'bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 ring-1 ring-zinc-950 transition-colors dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white',
+                  'inline-flex h-9 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white',
+                  'bg-zinc-950 hover:bg-zinc-800 active:scale-[0.97]',
+                  'transition-[background-color,transform] duration-150',
+                  'dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white dark:active:bg-zinc-200',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
                   'disabled:cursor-not-allowed disabled:opacity-60',
                 )}

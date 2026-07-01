@@ -216,12 +216,12 @@ export function PartyActionsMenu({ party }: PartyActionsMenuProps) {
         aria-expanded={isOpen}
         aria-label="Party actions"
         className={cn(
-          'inline-flex h-11 w-11 items-center justify-center rounded-md border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900',
-          'text-zinc-600 transition-colors duration-150 dark:text-zinc-300',
-          'hover:bg-zinc-100 hover:text-zinc-600',
+          'inline-flex size-8 items-center justify-center rounded-md',
+          'text-zinc-500 transition-[background-color,transform] duration-150 dark:text-zinc-400',
+          'hover:bg-zinc-100 hover:text-zinc-700 active:scale-[0.93]',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1',
           'dark:hover:bg-zinc-800 dark:hover:text-zinc-300',
-          isOpen && 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800',
+          isOpen && 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
         )}
       >
         <MoreHorizontal className="h-4 w-4" strokeWidth={2} />
