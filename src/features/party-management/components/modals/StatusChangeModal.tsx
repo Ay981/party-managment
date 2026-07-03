@@ -1,20 +1,3 @@
-// src/features/party-management/components/modals/StatusChangeModal.tsx
-//
-// Confirmation modal for activating or deactivating a company party.
-// Shown before any status change so users don't toggle status accidentally.
-//
-// Reads modal state from usePartyStore:
-//   modal.type  → 'activate' | 'deactivate'
-//   modal.party → { id, partyName, tin }
-//
-// Reference:
-//   US-05 Confirmation Modals table
-//   US-05 AC-2  "Deactivation sends PATCH with isActive: false, updates UI on success"
-//   US-05 AC-3  "Activation sends PATCH with isActive: true, updates UI on success"
-//   US-05 AC-5  "Action buttons disabled and loading indicator shown during request"
-//   US-05 AC-6  "On API error, no UI changes made and error notification displayed"
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useEffect, useRef } from 'react'
@@ -40,12 +23,12 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
 
   const cancelRef  = useRef<HTMLButtonElement>(null)
 
-  // Focus cancel button on open — safer default, user must explicitly confirm
+  // Focus the safe action first.
   useEffect(() => {
     if (isOpen) setTimeout(() => cancelRef.current?.focus(), 50)
   }, [isOpen])
 
-  // ESC to close
+  // ESC closes the modal.
   useEffect(() => {
     if (!isOpen) return
     const handle = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
@@ -53,7 +36,7 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
     return () => document.removeEventListener('keydown', handle)
   }, [isOpen, closeModal])
 
-  // Prevent body scroll while open
+  // Keep the background fixed while the modal is open.
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -95,14 +78,12 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
 
   return createPortal(
     <>
-      {/* Backdrop */}
       <div
         aria-hidden="true"
         onClick={closeModal}
         className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] animate-in fade-in-0 duration-150"
       />
 
-      {/* Panel */}
       <div
         role="dialog"
         aria-modal="true"
@@ -118,7 +99,6 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
             'animate-in fade-in-0 zoom-in-95 duration-150',
           )}
         >
-          {/* Header */}
           <div className="flex items-start justify-between p-6 pb-4">
             <div className="flex items-start gap-4">
               <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', config.iconBg)}>
@@ -149,13 +129,11 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
             </button>
           </div>
 
-          {/* Party info card — Reference: US-05 "Party Name: [name]" */}
           <div className="mx-6 mb-5 rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{party.partyName}</p>
             <p className="mt-0.5 font-mono text-xs text-zinc-400 dark:text-zinc-500">TIN: {party.tin}</p>
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-end gap-2.5 border-t border-zinc-100 px-6 py-4 dark:border-zinc-800">
             <button
               ref={cancelRef}
@@ -174,7 +152,6 @@ export function StatusChangeModal({ companyId }: StatusChangeModalProps) {
               Cancel
             </button>
 
-            {/* Reference: US-05 AC-5 loading state */}
             <button
               type="button"
               onClick={handleConfirm}

@@ -1,22 +1,3 @@
-// src/features/party-management/components/modals/DeletePartyModal.tsx
-//
-// Confirmation modal for soft-deleting a company party.
-// The most critical destructive action in the module —
-// uses strong warning language and destructive button styling.
-//
-// Reads modal state from usePartyStore:
-//   modal.type  → 'delete'
-//   modal.party → { id, partyName, tin }
-//
-// Reference:
-//   US-06 Delete Confirmation Modal table
-//   US-06 AC-02 "Confirmation modal displays party information and warning message"
-//   US-06 AC-03 "Clicking Cancel closes modal with no API request sent"
-//   US-06 AC-04 "Successful deletion displays success notification"
-//   US-06 AC-07 "Delete button shows loading state, prevents duplicate submissions"
-//   US-06 AC-08 "API errors display appropriate error message"
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -30,11 +11,7 @@ import { useDeleteParty }             from '../../hooks/useDeleteParty'
 
 interface DeletePartyModalProps {
   companyId: string
-  /**
-   * Set true when called from the details page.
-   * Triggers redirect to /parties after deletion.
-   * Reference: US-06 Post-Delete Behavior table
-   */
+  // Detail page deletes redirect back to the list.
   redirectAfter?: boolean
 }
 
@@ -47,7 +24,7 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
 
   const cancelRef = useRef<HTMLButtonElement>(null)
 
-  // Typed confirmation — user must type the party name to unlock Delete
+  // Typed confirmation gates the destructive action.
   const [confirmInput, setConfirmInput] = useState('')
   const confirmMatch = confirmInput.trim().toLowerCase() === party?.partyName.toLowerCase()
 
@@ -56,12 +33,12 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
     closeModal()
   }, [closeModal])
 
-  // Focus cancel on open
+  // Focus the safe action first.
   useEffect(() => {
     if (isOpen) setTimeout(() => cancelRef.current?.focus(), 50)
   }, [isOpen])
 
-  // ESC to close
+  // ESC closes the modal.
   useEffect(() => {
     if (!isOpen) return
     const handle = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose() }
@@ -69,7 +46,7 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
     return () => document.removeEventListener('keydown', handle)
   }, [isOpen, handleClose])
 
-  // Prevent body scroll
+  // Keep the background fixed while the modal is open.
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -86,14 +63,12 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
 
   return createPortal(
     <>
-      {/* Backdrop */}
       <div
         aria-hidden="true"
         onClick={() => !mutation.isPending && handleClose()}
         className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] animate-in fade-in-0 duration-150"
       />
 
-      {/* Panel */}
       <div
         role="dialog"
         aria-modal="true"
@@ -109,18 +84,15 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
             'animate-in fade-in-0 zoom-in-95 duration-150',
           )}
         >
-          {/* Header */}
           <div className="flex items-start justify-between p-6 pb-4">
             <div className="flex items-start gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10">
                 <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" strokeWidth={2} aria-hidden />
               </div>
               <div className="pt-1">
-                {/* Reference: US-06 "Title: Delete Party" */}
                 <h2 id="delete-modal-title" className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                   Delete party
                 </h2>
-                {/* Reference: US-06 Delete Confirmation Modal "Message" */}
                 <p id="delete-modal-description" className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                   Are you sure you want to delete this company-party relationship?
                 </p>
@@ -142,7 +114,6 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
             </button>
           </div>
 
-          {/* Party identity + warning — Reference: US-06 "Party Name: [name] | TIN: [tin]" */}
           <div className="mx-6 overflow-hidden rounded-lg border border-zinc-100 dark:border-zinc-800">
             <div className="px-4 py-3">
               <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -153,7 +124,6 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
               </p>
             </div>
 
-            {/* Reference: US-06 Delete Confirmation Modal "Warning" */}
             <div className="flex items-start gap-2.5 border-t border-amber-100 bg-amber-50 px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-amber-400" strokeWidth={2} aria-hidden />
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
@@ -163,7 +133,6 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
             </div>
           </div>
 
-          {/* Typed confirmation input — unlocks the Delete button */}
           <div className="mx-6 mt-4">
             <label htmlFor="confirm-name" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Type{' '}
@@ -199,9 +168,7 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
             )}
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-end gap-2.5 p-6 pt-4">
-            {/* Reference: US-06 AC-03 */}
             <button
               ref={cancelRef}
               type="button"
@@ -219,7 +186,6 @@ export function DeletePartyModal({ companyId, redirectAfter = false }: DeletePar
               Cancel
             </button>
 
-            {/* Reference: US-06 "Delete (destructive styling)", AC-07 loading state */}
             <button
               type="button"
               onClick={handleDelete}

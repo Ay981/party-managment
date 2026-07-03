@@ -1,15 +1,3 @@
-// src/features/party-management/components/PartyList/PartyList.tsx
-//
-// Root component for the Party List page.
-// Orchestrates filters, table, and data fetching.
-//
-// Reference:
-//   US-03 User Story — full list screen
-//   US-03 AC-01  "On page load, first page is retrieved and displayed"
-//   US-03 AC-08  "Loading indicator displayed while data is being fetched"
-//   US-03 AC-09  "API errors display appropriate error messages"
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useState } from 'react'
@@ -27,9 +15,6 @@ import { PartyFilters }   from './PartyFilters'
 import { PartyTable }     from './PartyTable'
 import { DeletePartyModal }  from '../modals/DeletePartyModal'
 import { StatusChangeModal } from '../modals/StatusChangeModal'
-
-
-// ─── Error Banner ─────────────────────────────────────────────────────────────
 
 function ErrorBanner({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
@@ -64,9 +49,6 @@ function ErrorBanner({ message, onRetry }: { message: string; onRetry?: () => vo
   )
 }
 
-
-// ─── Page Header ──────────────────────────────────────────────────────────────
-
 function PageHeader({ canCreate }: { canCreate: boolean }) {
   return (
     <div className="flex items-center justify-between">
@@ -97,9 +79,6 @@ function PageHeader({ canCreate }: { canCreate: boolean }) {
     </div>
   )
 }
-
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function PartyList() {
   const companyId     = useAuthStore(selectCompanyId)
@@ -141,7 +120,6 @@ export function PartyList() {
 
   return (
     <div className="space-y-4 p-3 sm:p-5 lg:p-6">
-      {/* Hidden on mobile — AppShell header already provides nav + new-party shortcut */}
       <div className="hidden lg:block">
         <PageHeader canCreate={canCreate} />
       </div>

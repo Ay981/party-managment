@@ -1,26 +1,5 @@
-// src/features/party-management/components/shared/PartyRoleBadge.tsx
-//
-// Displays one or more role badges for a party.
-// Handles all three role combinations from the FRD:
-//   Customer only  → single sky badge
-//   Vendor only    → single neutral badge
-//   Both           → two badges side by side
-//
-// Used in:
-//   - PartyTable rows        (US-03 Role & Status Indicators)
-//   - PartyDetails Section 2 (US-04 Party Roles)
-//
-// Reference:
-//   US-03 Role & Status Indicators table
-//   US-04 Section 2 — Party Roles
-//   US-04 UI Layout & Section Display Logic
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { cn } from '@/lib/utils'
 import { Building2, ShoppingCart } from 'lucide-react'
-
-
-// ─── Single Role Badge ────────────────────────────────────────────────────────
 
 type RoleType = 'customer' | 'vendor'
 
@@ -73,9 +52,6 @@ function RoleBadge({ role, size = 'md', className }: RoleBadgeProps) {
     </span>
   )
 }
-
-
-// ─── Compound Role Badge ──────────────────────────────────────────────────────
 
 interface PartyRoleBadgeProps {
   isCustomer: boolean

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-/* ── Class-based dark mode (next-themes sets class="dark" on <html>) ── */
+/* next-themes toggles dark mode with class="dark" on html. */
 @variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -73,13 +73,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Dark mode CSS variables — triggered by .dark class on <html> */
+/* Dark theme tokens. */
 .dark {
   --background: oklch(0.16 0.006 255);
   --foreground: oklch(0.92 0.004 255);
 }
 
-/* ── Shadow elevation tokens ─────────────────────────────────────── */
+/* Shared elevation tokens. */
 :root {
   --shadow-elevation:
     0px 0px 0px 1px rgba(30, 28, 50, 0.07),
@@ -114,7 +114,7 @@ body {
 h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
 p { text-wrap: pretty; }
 
-/* ── Custom utilities ─────────────────────────────────────────────── */
+/* Tailwind utility aliases. */
 
 @utility shadow-elevation {
   box-shadow: var(--shadow-elevation);

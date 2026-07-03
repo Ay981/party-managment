@@ -1,16 +1,3 @@
-// src/features/party-management/components/PartyForm/CustomerProfileFields.tsx
-//
-// Section 3 — Customer Profile fields for the Create Party form.
-// Rendered only when the Customer party type checkbox is checked.
-//
-// Reference: US-01 Section 3 — Customer Profile field table
-//   Credit Limit         — Currency Input, optional, >= 0 (BR-09)
-//   Payment Terms        — Dropdown, optional
-//   Risk Level           — Dropdown, REQUIRED
-//   Uses Withholding Tax — Radio Button, optional, Yes/No
-//   Receivable Account   — Dropdown, REQUIRED GL account (BR-07)
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useFormContext } from 'react-hook-form'
@@ -21,9 +8,6 @@ import { PaymentTerms, RiskLevel } from '@/types/party.types'
 import { MOCK_RECEIVABLE_ACCOUNTS } from '@/lib/api/party.mock'
 
 import type { CreatePartyFormValues, UpdatePartyFormValues } from '@/lib/validations/party.schema'
-
-
-// ─── Option Lists ─────────────────────────────────────────────────────────────
 
 const PAYMENT_TERMS_OPTIONS: { value: PaymentTerms; label: string }[] = [
   { value: PaymentTerms.CASH,            label: 'Cash'            },
@@ -37,9 +21,6 @@ const RISK_LEVEL_OPTIONS: { value: RiskLevel; label: string; dot: string }[] = [
   { value: RiskLevel.MEDIUM, label: 'Medium', dot: 'bg-amber-500'   },
   { value: RiskLevel.HIGH,   label: 'High',   dot: 'bg-red-500'     },
 ]
-
-
-// ─── Local Field Wrapper ───────────────────────────────────────────────────────
 
 function FormField({
   id, label, required, error, hint, children,
@@ -76,9 +57,6 @@ const inputCls = (hasError?: boolean) => cn(
     : 'border-zinc-200 focus:border-sky-400 focus:ring-sky-500/20 dark:border-zinc-700 dark:focus:border-sky-600',
 )
 
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function CustomerProfileFields() {
   const {
     register,
@@ -106,7 +84,6 @@ export function CustomerProfileFields() {
 
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 p-5 sm:grid-cols-2">
 
-        {/* Credit Limit — BR-09 */}
         <FormField id="customer-credit-limit" label="Credit limit" hint="optional · ETB" error={fieldErrors?.creditLimit?.message}>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">
@@ -123,7 +100,6 @@ export function CustomerProfileFields() {
           </div>
         </FormField>
 
-        {/* Payment Terms — optional */}
         <FormField id="customer-payment-terms" label="Payment terms" hint="optional">
           <select
             id="customer-payment-terms"
@@ -137,7 +113,6 @@ export function CustomerProfileFields() {
           </select>
         </FormField>
 
-        {/* Risk Level — REQUIRED */}
         <FormField id="customer-risk-level" label="Risk level" required error={fieldErrors?.riskLevel?.message}>
           <div id="customer-risk-level" className="flex gap-1.5" role="group" aria-label="Risk level">
             {RISK_LEVEL_OPTIONS.map(opt => {
@@ -163,7 +138,6 @@ export function CustomerProfileFields() {
           </div>
         </FormField>
 
-        {/* Receivable Account — REQUIRED, BR-07 */}
         <FormField id="customer-receivable-account" label="Receivable account" required error={fieldErrors?.receivableAccountId?.message}>
           <select
             id="customer-receivable-account"
@@ -177,7 +151,6 @@ export function CustomerProfileFields() {
           </select>
         </FormField>
 
-        {/* Uses Withholding Tax */}
         <FormField id="customer-withholding-tax" label="Uses withholding tax" hint="optional">
           <div id="customer-withholding-tax" className="flex gap-1.5" role="group" aria-label="Customer withholding tax">
             {([{ label: 'Yes', value: true }, { label: 'No', value: false }] as const).map(opt => {

@@ -1,25 +1,8 @@
-// src/features/party-management/components/PartyDetails/VendorProfileSection.tsx
-//
-// Section 5 — Vendor Profile
-// Visible only when isVendor = true.
-//
-// Reference: US-04 Section Field Reference → "Section 5 — Vendor Profile"
-// Fields: Service Description, Payment Terms, Uses Withholding Tax, Vendor Status
-// NOTE: Payable Account belongs to Section 6 (GLAccountSection).
-//
-// Reference: US-04 Error Handling "Null Profile: No vendor profile configured."
-// Reference: US-04 AC-08 "Vendor Profile fields displayed when vendorProfile is not null"
-// Reference: US-04 AC-10 "Friendly empty-state messages shown for null profiles"
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { Building2, FileWarning } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { PaymentTerms } from '@/types/party.types'
 import type { CompanyParty } from '@/types/party.types'
-
-
-// ─── Formatters ───────────────────────────────────────────────────────────────
 
 function formatPaymentTerms(terms: PaymentTerms): string {
   const labels: Record<PaymentTerms, string> = {
@@ -30,9 +13,6 @@ function formatPaymentTerms(terms: PaymentTerms): string {
   }
   return labels[terms]
 }
-
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -49,14 +29,10 @@ function EmptyProfile() {
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
         <FileWarning className="h-4 w-4 text-zinc-400" strokeWidth={1.75} aria-hidden />
       </div>
-      {/* Reference: US-04 Error Handling "No vendor profile configured." */}
       <p className="text-sm text-zinc-500 dark:text-zinc-400">No vendor profile configured.</p>
     </div>
   )
 }
-
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface VendorProfileSectionProps {
   party: CompanyParty
@@ -74,7 +50,6 @@ export function VendorProfileSection({ party }: VendorProfileSectionProps) {
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Vendor profile</h2>
       </div>
 
-      {/* Reference: US-04 AC-08, AC-10 */}
       {!profile ? (
         <EmptyProfile />
       ) : (
@@ -91,7 +66,6 @@ export function VendorProfileSection({ party }: VendorProfileSectionProps) {
             </span>
           </div>
 
-          {/* Reference: US-04 Section 5 field list */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-5">
             <Stat label="Payment terms">
               {formatPaymentTerms(profile.paymentTerms)}

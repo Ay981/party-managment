@@ -1,15 +1,3 @@
-// src/features/party-management/components/PartyForm/VendorProfileFields.tsx
-//
-// Section 4 — Vendor Profile fields for the Create Party form.
-// Rendered only when the Vendor party type checkbox is checked.
-//
-// Reference: US-01 Section 4 — Vendor Profile field table
-//   Service Description  — Text Area, optional
-//   Uses Withholding Tax — Radio Button, optional, Yes/No
-//   Payment Terms        — Dropdown, REQUIRED
-//   Payable Account      — Dropdown, REQUIRED GL account (BR-08)
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useFormContext } from 'react-hook-form'
@@ -92,7 +80,6 @@ export function VendorProfileFields() {
 
       <div className="grid grid-cols-1 gap-x-4 gap-y-5 p-5 sm:grid-cols-2">
 
-        {/* Payment Terms — REQUIRED */}
         <FormField id="vendor-payment-terms" label="Payment terms" required error={fieldErrors?.paymentTerms?.message}>
           <select
             id="vendor-payment-terms"
@@ -106,7 +93,6 @@ export function VendorProfileFields() {
           </select>
         </FormField>
 
-        {/* Payable Account — REQUIRED, BR-08 */}
         <FormField id="vendor-payable-account" label="Payable account" required error={fieldErrors?.payableAccountId?.message}>
           <select
             id="vendor-payable-account"
@@ -120,7 +106,6 @@ export function VendorProfileFields() {
           </select>
         </FormField>
 
-        {/* Uses Withholding Tax */}
         <FormField id="vendor-withholding-tax" label="Uses withholding tax" hint="optional">
           <div id="vendor-withholding-tax" className="flex gap-1.5" role="group" aria-label="Vendor withholding tax">
             {([{ label: 'Yes', value: true }, { label: 'No', value: false }] as const).map(opt => {
@@ -145,7 +130,6 @@ export function VendorProfileFields() {
           </div>
         </FormField>
 
-        {/* Service Description — full width, free text */}
         <div className="sm:col-span-2">
           <FormField id="vendor-service-description" label="Service description" hint="optional">
             <textarea

@@ -1,23 +1,7 @@
-// src/features/party-management/components/PartyDetails/PartyInfoSection.tsx
-//
-// Section 1 — Party Information
-// Read-only display of core party master fields.
-//
-// Reference: US-04 Section Field Reference → "Section 1 — Party Information"
-// Fields: Party Code, Party Name, Contact Name, TIN, Phone, Email, Address
-// All fields are read-only text per the FRD.
-//
-// Reference: US-04 AC-02 "Party Code, Name, Contact, TIN, Phone, Email, and
-// Address are all displayed."
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { Hash, Building2, User, Phone, Mail, MapPin, Landmark } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import type { CompanyParty } from '@/types/party.types'
-
-
-// ─── Field Row ────────────────────────────────────────────────────────────────
 
 function Field({
   icon: Icon,
@@ -53,9 +37,6 @@ function Field({
   )
 }
 
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 interface PartyInfoSectionProps {
   party: CompanyParty
 }
@@ -68,7 +49,6 @@ export function PartyInfoSection({ party }: PartyInfoSectionProps) {
         <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Master record details for this party</p>
       </div>
 
-      {/* Reference: US-04 Section 1 field list */}
       <div className="grid grid-cols-1 gap-x-6 divide-y divide-zinc-50 px-5 sm:grid-cols-2 sm:divide-y-0 dark:divide-zinc-900">
         <Field icon={Hash}      label="Party code"   value={party.partyCode}   mono />
         <Field icon={Building2} label="Party name"   value={party.partyName} />

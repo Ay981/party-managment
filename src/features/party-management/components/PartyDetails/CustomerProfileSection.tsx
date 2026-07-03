@@ -1,25 +1,8 @@
-// src/features/party-management/components/PartyDetails/CustomerProfileSection.tsx
-//
-// Section 4 — Customer Profile
-// Visible only when isCustomer = true.
-//
-// Reference: US-04 Section Field Reference → "Section 4 — Customer Profile"
-// Fields: Credit Limit, Payment Terms, Risk Level, Customer Status, Uses Withholding Tax
-// NOTE: Receivable Account belongs to Section 6 (GLAccountSection).
-//
-// Reference: US-04 Error Handling "Null Profile: No customer profile configured."
-// Reference: US-04 AC-07 "Customer Profile fields displayed when customerProfile is not null"
-// Reference: US-04 AC-10 "Friendly empty-state messages shown for null profiles"
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { ShoppingCart, FileWarning } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { RiskLevel, PaymentTerms } from '@/types/party.types'
 import type { CompanyParty } from '@/types/party.types'
-
-
-// ─── Formatters ───────────────────────────────────────────────────────────────
 
 const CURRENCY = 'ETB'
 
@@ -39,10 +22,6 @@ function formatPaymentTerms(terms: PaymentTerms): string {
   return labels[terms]
 }
 
-
-// ─── Risk Level Badge ─────────────────────────────────────────────────────────
-
-/** Reference: US-04 Section 4 "Risk Level | Badge | LOW / MEDIUM / HIGH" */
 function RiskBadge({ level }: { level: RiskLevel }) {
   const config: Record<RiskLevel, { label: string; cls: string }> = {
     [RiskLevel.LOW]: {
@@ -66,9 +45,6 @@ function RiskBadge({ level }: { level: RiskLevel }) {
   )
 }
 
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
@@ -84,14 +60,10 @@ function EmptyProfile() {
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
         <FileWarning className="h-4 w-4 text-zinc-400" strokeWidth={1.75} aria-hidden />
       </div>
-      {/* Reference: US-04 Error Handling "No customer profile configured." */}
       <p className="text-sm text-zinc-500 dark:text-zinc-400">No customer profile configured.</p>
     </div>
   )
 }
-
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface CustomerProfileSectionProps {
   party: CompanyParty
@@ -102,7 +74,6 @@ export function CustomerProfileSection({ party }: CustomerProfileSectionProps) {
 
   return (
     <section className="rounded-xl bg-white shadow-elevation dark:bg-zinc-950">
-      {/* sky accent ties back to PartyRoleBadge customer color */}
       <div className="flex items-center gap-2.5 border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
         <div className="flex size-7 items-center justify-center rounded-md bg-sky-50 dark:bg-sky-500/10">
           <ShoppingCart className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" strokeWidth={2} aria-hidden />
@@ -110,7 +81,6 @@ export function CustomerProfileSection({ party }: CustomerProfileSectionProps) {
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Customer profile</h2>
       </div>
 
-      {/* Reference: US-04 AC-07, AC-10 */}
       {!profile ? (
         <EmptyProfile />
       ) : (
@@ -127,7 +97,6 @@ export function CustomerProfileSection({ party }: CustomerProfileSectionProps) {
             </span>
           </div>
 
-          {/* Reference: US-04 Section 4 field list */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-5">
             <Stat label="Credit limit">
               {profile.creditLimit !== null

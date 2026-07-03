@@ -7,9 +7,6 @@ import { cn }                                     from '@/lib/utils'
 import { usePartyStore, selectStatusFilter }       from '@/store/party.store'
 import { ActiveStatusFilter, type PerPageOption } from '@/types/party.types'
 
-
-// ─── Filter Chip ──────────────────────────────────────────────────────────────
-
 function FilterChip({
   id,
   label,
@@ -47,9 +44,6 @@ function FilterChip({
     </label>
   )
 }
-
-
-// ─── Status Dropdown ──────────────────────────────────────────────────────────
 
 function StatusDropdown({
   value,
@@ -133,31 +127,21 @@ function StatusDropdown({
   )
 }
 
+function SearchInput({
+  search,
+  applySearch,
+}: {
+  search: string
+  applySearch: (value: string) => void
+}) {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [inputValue, setInputValue] = useState(search)
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
-interface PartyFiltersProps {
-  totalResults?: number
-  isFetching?:   boolean
-}
-
-export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
-  const {
-    filters,
-    applySearch,
-    toggleCustomerFilter,
-    toggleVendorFilter,
-    setStatusFilter,
-    setFilter,
-    resetFilters,
-  } = usePartyStore()
-
-  const statusFilter = usePartyStore(selectStatusFilter)
-  const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [inputValue, setInputValue] = useState(filters.search)
-
-  // Sync input when filters are reset externally (e.g. "Clear filters" in empty state)
-  useEffect(() => { setInputValue(filters.search) }, [filters.search])
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -184,8 +168,68 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
     applySearch('')
   }
 
+  return (
+    <div className="relative flex-1">
+      <Search
+        className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
+        strokeWidth={2}
+        aria-hidden
+      />
+      <input
+        type="search"
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Search by name, TIN, or phone…"
+        aria-label="Search parties"
+        autoComplete="off"
+        className={cn(
+          'h-10 w-full rounded-lg border border-zinc-200 bg-white',
+          'pl-9 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400',
+          'transition-shadow duration-150',
+          'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
+          'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500',
+          '[&::-webkit-search-cancel-button]:hidden',
+        )}
+      />
+      {inputValue && (
+        <button
+          type="button"
+          onClick={handleClearSearch}
+          aria-label="Clear search"
+          className={cn(
+            'absolute right-0 top-1/2 -translate-y-1/2',
+            'inline-flex h-10 w-10 items-center justify-center rounded-r-lg',
+            'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
+            'transition-colors',
+          )}
+        >
+          <X className="h-3.5 w-3.5" strokeWidth={2} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+interface PartyFiltersProps {
+  totalResults?: number
+  isFetching?:   boolean
+}
+
+export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
+  const {
+    filters,
+    applySearch,
+    toggleCustomerFilter,
+    toggleVendorFilter,
+    setStatusFilter,
+    setFilter,
+    resetFilters,
+  } = usePartyStore()
+
+  const statusFilter = usePartyStore(selectStatusFilter)
+
   const handleResetFilters = () => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
     resetFilters()
   }
 
@@ -203,52 +247,11 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
     { label: 'Inactive', value: ActiveStatusFilter.INACTIVE },
   ]
 
-  const statusActive = statusFilter !== ActiveStatusFilter.ALL
-
   return (
     <div className="space-y-2.5">
 
-      {/* ── Search + Status ────────────────────────────────────────────── */}
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
-            strokeWidth={2}
-            aria-hidden
-          />
-          <input
-            type="search"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Search by name, TIN, or phone…"
-            aria-label="Search parties"
-            autoComplete="off"
-            className={cn(
-              'h-10 w-full rounded-lg border border-zinc-200 bg-white',
-              'pl-9 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400',
-              'transition-shadow duration-150',
-              'focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/15',
-              'dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500',
-              '[&::-webkit-search-cancel-button]:hidden',
-            )}
-          />
-          {inputValue && (
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              aria-label="Clear search"
-              className={cn(
-                'absolute right-0 top-1/2 -translate-y-1/2',
-                'inline-flex h-10 w-10 items-center justify-center rounded-r-lg',
-                'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
-                'transition-colors',
-              )}
-            >
-              <X className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
-          )}
-        </div>
+        <SearchInput key={filters.search} search={filters.search} applySearch={applySearch} />
 
         <StatusDropdown
           value={statusFilter}
@@ -257,7 +260,6 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
         />
       </div>
 
-      {/* ── Role filters + per-page ──────────────────────────────────────── */}
       <div className="flex items-center gap-2">
 
         <div className="flex flex-1 items-center gap-2">
@@ -338,7 +340,6 @@ export function PartyFilters({ totalResults, isFetching }: PartyFiltersProps) {
 
       </div>
 
-      {/* Mobile-only result count */}
       {totalResults !== undefined && (
         <p className="text-xs text-zinc-400 sm:hidden dark:text-zinc-500">
           {isFetching ? (

@@ -1,21 +1,3 @@
-// src/features/party-management/components/PartyList/PartyTable.tsx
-//
-// Data table for the party list.
-// Renders party records with all columns from US-03.
-//
-// States handled:
-//   - Loading skeleton (first fetch)
-//   - Empty state (no results)
-//   - Populated table with pagination
-//
-// Reference:
-//   US-03 Table Columns
-//   US-03 Role & Status Indicators
-//   US-03 AC-07 "Empty state message shown when no records match filters"
-//   US-03 AC-08 "Loading indicator displayed while data is being fetched"
-//   US-03 AC-10 "All displayed fields match the API response values"
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { format } from 'date-fns'
@@ -31,9 +13,6 @@ import { usePartyStore }    from '@/store/party.store'
 import { useAuthStore, selectCompanyId } from '@/store/auth.store'
 
 import type { CompanyParty, PaginationMeta } from '@/types/party.types'
-
-
-// ─── Loading Skeleton ─────────────────────────────────────────────────────────
 
 function SkeletonRow() {
   return (
@@ -54,9 +33,6 @@ function SkeletonRow() {
   )
 }
 
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
-
 function EmptyState({
   hasFilters,
   onSeedDemo,
@@ -71,10 +47,7 @@ function EmptyState({
   return (
     <tr>
       <td colSpan={9} className="py-16">
-        {/*
-          sticky left-0 keeps the content anchored to the visible viewport
-          when the table scrolls horizontally on narrow screens.
-        */}
+        {/* Keep empty-state content visible while the table scrolls horizontally. */}
         <div className="sticky left-0 flex justify-center px-6">
           <div className="flex max-w-xs flex-col items-center gap-3 text-center">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
@@ -131,9 +104,6 @@ function EmptyState({
     </tr>
   )
 }
-
-
-// ─── Pagination Controls ──────────────────────────────────────────────────────
 
 function Pagination({ meta }: { meta: PaginationMeta }) {
   const { setPage } = usePartyStore()
@@ -210,9 +180,6 @@ function Pagination({ meta }: { meta: PaginationMeta }) {
   )
 }
 
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function Th({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <th
@@ -228,14 +195,10 @@ function Th({ children, className }: { children: React.ReactNode; className?: st
   )
 }
 
-/** Reference: US-03 Table Columns "TIN: 10-digit masked display" */
 function maskTin(tin: string): string {
   if (tin.length !== 10) return tin
   return `${tin.slice(0, 2)}••••••${tin.slice(-2)}`
 }
-
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 interface PartyTableProps {
   parties:    CompanyParty[]

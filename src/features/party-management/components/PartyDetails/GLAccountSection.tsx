@@ -1,24 +1,7 @@
-// src/features/party-management/components/PartyDetails/GLAccountSection.tsx
-//
-// Section 6 — GL Account Assignments
-// Displays the General Ledger accounts linked to this party.
-//
-// Reference: US-04 Section Field Reference → "Section 6 — GL Account Assignments"
-//   Receivable Account → visible when isCustomer = true
-//   Payable Account    → visible when isVendor = true
-//
-// Reference: US-04 Error Handling "No GL Accounts: No GL accounts assigned."
-// Reference: US-04 AC-09 "GL Account Assignment information displayed when available"
-// Reference: Appendix C Glossary "GL Account"
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { Landmark, ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import type { CompanyParty, GLAccount } from '@/types/party.types'
-
-
-// ─── Account Row ──────────────────────────────────────────────────────────────
 
 function AccountRow({
   label,
@@ -58,30 +41,22 @@ function AccountRow({
   )
 }
 
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
-
 function EmptyAccounts() {
   return (
     <div className="flex flex-col items-center gap-2 px-5 py-10 text-center">
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
         <Landmark className="h-4 w-4 text-zinc-400" strokeWidth={1.75} aria-hidden />
       </div>
-      {/* Reference: US-04 Error Handling "No GL accounts assigned." */}
       <p className="text-sm text-zinc-500 dark:text-zinc-400">No GL accounts assigned.</p>
     </div>
   )
 }
-
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface GLAccountSectionProps {
   party: CompanyParty
 }
 
 export function GLAccountSection({ party }: GLAccountSectionProps) {
-  // Reference: US-04 Section 6 "Visible When" conditions
   const receivableAccount = party.isCustomer ? party.customerProfile?.receivableAccount : undefined
   const payableAccount    = party.isVendor   ? party.vendorProfile?.payableAccount      : undefined
 
@@ -99,7 +74,6 @@ export function GLAccountSection({ party }: GLAccountSectionProps) {
         </div>
       </div>
 
-      {/* Reference: US-04 AC-09 vs Error Handling empty state */}
       {!hasAnyAccount ? (
         <EmptyAccounts />
       ) : (

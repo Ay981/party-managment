@@ -1,22 +1,3 @@
-// src/features/party-management/components/PartyDetails/PartyDetails.tsx
-//
-// Root component for the Company Party Details page.
-// Orchestrates data fetching, the page header (Sections 2 & 3), and
-// composes the section components below it.
-//
-// Section mapping from the FRD:
-//   Section 1 — Party Information      → PartyInfoSection
-//   Section 2 — Party Roles            → rendered inline in the header
-//   Section 3 — Status Information     → rendered inline in the header
-//   Section 4 — Customer Profile       → CustomerProfileSection
-//   Section 5 — Vendor Profile         → VendorProfileSection
-//   Section 6 — GL Account Assignments → GLAccountSection
-//
-// Reference:
-//   US-04 Screen Description
-//   US-04 UI Layout & Section Display Logic
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import Link from 'next/link'
@@ -49,9 +30,6 @@ import { DeletePartyModal }       from '../modals/DeletePartyModal'
 
 import type { ApiError } from '@/types/party.types'
 
-
-// ─── Loading Skeleton ─────────────────────────────────────────────────────────
-
 function DetailsSkeleton() {
   return (
     <div className="space-y-5 p-6">
@@ -72,15 +50,7 @@ function DetailsSkeleton() {
   )
 }
 
-
-// ─── Error State ──────────────────────────────────────────────────────────────
-
-/**
- * Maps API error codes to icon + message per US-04 Error Handling.
- * 404 PARTY_NOT_FOUND → "Party record not found."
- * 403 FORBIDDEN       → "You do not have permission to view this party."
- * 500                 → "Unable to load party details. Please try again."
- */
+// Map known API codes to the matching empty/error state.
 function DetailsError({ error }: { error: ApiError }) {
   const config =
     error.code === 'PARTY_NOT_FOUND'
@@ -111,11 +81,7 @@ function DetailsError({ error }: { error: ApiError }) {
   )
 }
 
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 interface PartyDetailsProps {
-  /** Party ID from the route param — passed by app/parties/[id]/page.tsx */
   partyId: string
 }
 
@@ -142,8 +108,6 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
 
   return (
     <div className="space-y-5 p-6">
-
-      {/* Back link */}
       <Link
         href="/parties"
         className="inline-flex min-h-11 items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
@@ -152,11 +116,8 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
         Back to parties
       </Link>
 
-      {/* ── Header card — Sections 2 & 3 ── */}
       <div className="rounded-xl bg-white p-6 shadow-elevation dark:bg-zinc-950">
         <div className="flex flex-wrap items-start justify-between gap-4">
-
-          {/* Identity block */}
           <div className="space-y-2.5">
             <span className="font-mono text-xs font-medium text-zinc-400 dark:text-zinc-500">
               {party.partyCode}
@@ -164,14 +125,12 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
             <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
               {party.partyName}
             </h1>
-            {/* Section 2 — Party Roles. Reference: US-04 AC-03, AC-04, AC-05 */}
             <div className="flex flex-wrap items-center gap-2">
               <PartyRoleBadge isCustomer={party.isCustomer} isVendor={party.isVendor} />
               <PartyStatusBadge isActive={party.isActive} />
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-2">
             {canEdit && (
               <Link
@@ -227,8 +186,6 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
           </div>
         </div>
 
-        {/* Section 3 — Status Information timestamps */}
-        {/* Reference: US-04 AC-06 "Active Status, Created Date, and Last Updated Date are displayed" */}
         <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1.5 border-t border-zinc-100 pt-4 text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
           <span>
             Created{' '}
@@ -245,11 +202,9 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
         </div>
       </div>
 
-      {/* Section 1 — Party Information */}
       <PartyInfoSection party={party} />
 
-      {/* Sections 4 & 5 — Customer / Vendor Profile */}
-      {/* Reference: US-04 UI Layout & Section Display Logic */}
+      {/* Role-specific panels render only when that role is enabled. */}
       {(party.isCustomer || party.isVendor) && (
         <div className={cn(
           'grid grid-cols-1 gap-5',
@@ -260,11 +215,9 @@ export function PartyDetails({ partyId }: PartyDetailsProps) {
         </div>
       )}
 
-      {/* Section 6 — GL Account Assignments */}
       <GLAccountSection party={party} />
 
-      {/* Modals — redirectAfter=true so delete returns to the list */}
-      {/* Reference: US-06 Post-Delete Behavior "Company Party Details → Redirect to list" */}
+      {/* Details deletion returns to the list. */}
       <StatusChangeModal companyId={companyId ?? ''} />
       <DeletePartyModal  companyId={companyId ?? ''} redirectAfter />
 

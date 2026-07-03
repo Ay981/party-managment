@@ -1,15 +1,3 @@
-// src/features/party-management/components/PartyForm/CreatePartyForm.tsx
-//
-// Root component for the Create Party screen.
-// Covers US-01: Create Party (Customer, Vendor, or Both)
-//
-// Composition:
-//   Section 2 — Party Type          → inline toggle cards (shown first for UX)
-//   Section 1 — Party Information   → inline fields
-//   Section 3 — Customer Profile    → CustomerProfileFields (conditional, BR-02)
-//   Section 4 — Vendor Profile      → VendorProfileFields (conditional, BR-03)
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useEffect } from 'react'
@@ -27,9 +15,6 @@ import { VendorProfileFields }   from './VendorProfileFields'
 
 import type { CreatePartyPayload, PaymentTerms, RiskLevel } from '@/types/party.types'
 
-
-// ─── Default Values ─────────────────────────────────────────────────────────
-
 const DEFAULT_VALUES: CreatePartyFormValues = {
   partyName: '', contactName: '', tin: '', phone: '', email: '', address: '',
   isCustomer: false, isVendor: false,
@@ -43,8 +28,6 @@ const DEFAULT_VALUES: CreatePartyFormValues = {
   },
 }
 
-
-// ─── Local Field Wrapper ──────────────────────────────────────────────────────
 
 function FormField({
   id, label, required, error, hint, children,
@@ -61,7 +44,6 @@ function FormField({
         </span>
         {hint && <span className="text-[11px] text-zinc-400 dark:text-zinc-600">{hint}</span>}
       </label>
-      {/* Clone child to inject aria-describedby + aria-invalid when there's an error */}
       <div className="mt-1.5" data-error-id={errorId}>{children}</div>
       {error && (
         <p id={errorId} role="alert" className="mt-1 flex items-center gap-1 text-xs text-red-500 dark:text-red-400">
@@ -83,9 +65,6 @@ const inputCls = (hasError?: boolean) => cn(
     : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
 )
 
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function CreatePartyForm() {
   const router    = useRouter()
   const companyId = useAuthStore(selectCompanyId) ?? ''
@@ -106,7 +85,7 @@ export function CreatePartyForm() {
 
   const createMutation = useCreateParty(companyId)
 
-  // Surface backend errors inline
+  // Show backend errors inline.
   useEffect(() => {
     if (createMutation.error?.code === 'DUPLICATE_TIN') {
       setError('tin', { message: createMutation.error.message })
@@ -168,14 +147,11 @@ export function CreatePartyForm() {
           </p>
         </div>
 
-        {/* ── Section 2 — Party Type ── */}
-        {/* shadow-elevation replaces hard border; toggle buttons use rounded-lg (concentric: section=xl p-5=20px → child=lg=8px) */}
         <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party type</h2>
           <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Select the transaction roles this master record can use.</p>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
-            {/* Customer row */}
             <button
               type="button"
               onClick={() => setValue('isCustomer', !isCustomer, { shouldValidate: true })}
@@ -210,7 +186,6 @@ export function CreatePartyForm() {
 
             <div className="border-t border-zinc-100 dark:border-zinc-800" />
 
-            {/* Vendor row */}
             <button
               type="button"
               onClick={() => setValue('isVendor', !isVendor, { shouldValidate: true })}
@@ -264,7 +239,6 @@ export function CreatePartyForm() {
           )}
         </section>
 
-        {/* ── Section 1 — Party Information ── */}
         <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Party information</h2>
           <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">Master record details — visible across all companies</p>
@@ -278,7 +252,6 @@ export function CreatePartyForm() {
               <input id="contact-name" type="text" placeholder="e.g. Aymen Abdulber" {...register('contactName')} className={inputCls(!!errors.contactName)} />
             </FormField>
 
-            {/* TIN — BR-05 */}
             <FormField id="tin" label="TIN" required hint="10 digits" error={errors.tin?.message}>
               <input
                 id="tin"
@@ -307,13 +280,10 @@ export function CreatePartyForm() {
           </div>
         </section>
 
-        {/* ── Section 3 — Customer Profile (BR-02) ── */}
         {isCustomer && <CustomerProfileFields />}
 
-        {/* ── Section 4 — Vendor Profile (BR-03) ── */}
         {isVendor && <VendorProfileFields />}
 
-        {/* ── Sticky action bar — BR-10 ── */}
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
           <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-xs text-zinc-600 dark:text-zinc-300">

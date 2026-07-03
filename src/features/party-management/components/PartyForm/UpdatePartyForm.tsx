@@ -1,12 +1,3 @@
-// src/features/party-management/components/PartyForm/UpdatePartyForm.tsx
-//
-// Root component for the Edit Company Party screen.
-// Covers US-02: Update Company Party Information
-//
-// Scope: partyName, contactName, phone, email, address, roles, status,
-// and role profile fields when Customer/Vendor roles are selected. TIN is immutable.
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import { useEffect } from 'react'
@@ -24,9 +15,6 @@ import { CustomerProfileFields } from './CustomerProfileFields'
 import { VendorProfileFields } from './VendorProfileFields'
 
 import type { PaymentTerms, RiskLevel, UpdatePartyPayload } from '@/types/party.types'
-
-
-// ─── Local Field Wrapper ──────────────────────────────────────────────────────
 
 function FormField({
   id, label, required, error, hint, children,
@@ -62,9 +50,6 @@ const inputCls = (hasError?: boolean) => cn(
     : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-500/15 dark:border-zinc-700 dark:focus:border-zinc-500',
 )
 
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
 function FormSkeleton() {
   return (
     <div className="space-y-5 p-6">
@@ -74,9 +59,6 @@ function FormSkeleton() {
     </div>
   )
 }
-
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface UpdatePartyFormProps {
   partyId: string
@@ -109,7 +91,7 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
     formState: { errors, isSubmitting, isDirty },
   } = form
 
-  // Pre-populate once party data loads — US-02 User Flow step 4, AC-01
+  // Pre-populate after the detail query resolves.
   useEffect(() => {
     if (party) {
       reset({
@@ -150,7 +132,7 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
 
   const updateMutation = useUpdateParty(companyId)
 
-  // Reference: US-02 AC-08 "API errors display returned message while preserving entered values"
+  // Keep server validation errors inline without wiping current edits.
   useEffect(() => {
     if (updateMutation.error?.errors) {
       Object.entries(updateMutation.error.errors).forEach(([field, messages]) => {
@@ -238,7 +220,6 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
         </div>
       )}
 
-      {/* Contact information */}
       <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Contact information</h2>
 
@@ -251,7 +232,6 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
             <input id="contact-name" type="text" {...register('contactName')} className={inputCls(!!errors.contactName)} />
           </FormField>
 
-          {/* TIN — read-only, immutable per Appendix C */}
           <FormField id="tin" label="TIN" hint="immutable">
             <input
               id="tin"
@@ -278,13 +258,11 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
         </div>
       </section>
 
-      {/* Roles & status */}
       <section className="rounded-xl bg-white p-5 shadow-elevation dark:bg-zinc-950">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Roles & status</h2>
         <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">At least one role must remain selected</p>
 
         <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
-          {/* Customer row */}
           <button
             type="button"
             onClick={() => setValue('isCustomer', !isCustomer, { shouldValidate: true, shouldDirty: true })}
@@ -319,10 +297,8 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
             </div>
           </button>
 
-          {/* Divider */}
           <div className="border-t border-zinc-100 dark:border-zinc-800" />
 
-          {/* Vendor row */}
           <button
             type="button"
             onClick={() => setValue('isVendor', !isVendor, { shouldValidate: true, shouldDirty: true })}
@@ -365,7 +341,6 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
           </p>
         )}
 
-        {/* Active Status toggle */}
         <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4 dark:border-zinc-800">
           <div>
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Active status</p>
@@ -394,7 +369,6 @@ export function UpdatePartyForm({ partyId }: UpdatePartyFormProps) {
 
       {isVendor && <VendorProfileFields />}
 
-      {/* ── Sticky action bar ── */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
         <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-xs text-zinc-600 dark:text-zinc-300">

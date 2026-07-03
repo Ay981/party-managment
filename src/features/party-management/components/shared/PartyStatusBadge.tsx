@@ -1,29 +1,9 @@
-// src/features/party-management/components/shared/PartyStatusBadge.tsx
-//
-// Displays the active/inactive status of a company party.
-// Used in:
-//   - PartyTable rows         (US-03 Role & Status Indicators)
-//   - PartyDetails Section 3  (US-04 Status Information)
-//   - PartyDetails page header
-//
-// Reference:
-//   US-03 "Status: Colored badge"
-//   US-05 Status Badge table — Active: green, Inactive: gray/red
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { cn } from '@/lib/utils'
 
 
 interface PartyStatusBadgeProps {
-  /** The isActive flag from CompanyParty */
   isActive: boolean
-
-  /**
-   * sm → used inline in table rows
-   * md → used in detail page headers and cards
-   */
   size?: 'sm' | 'md'
-
   className?: string
 }
 

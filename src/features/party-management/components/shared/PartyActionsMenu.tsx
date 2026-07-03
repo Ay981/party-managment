@@ -1,23 +1,3 @@
-// src/features/party-management/components/shared/PartyActionsMenu.tsx
-//
-// Row-level actions dropdown for a company party.
-// Renders different items based on party status and user permissions.
-//
-// Visible actions per status (US-05 Actions Menu table):
-//   Active party   → View | Edit | Deactivate
-//   Inactive party → View | Edit | Activate
-//
-// Permission-gated actions:
-//   Edit             → requires UPDATE_PARTY permission
-//   Activate/Deactivate → requires TOGGLE_PARTY permission — US-05 AC-7
-//   Delete           → requires DELETE_PARTY permission   — US-06 AC-01, AC-09
-//
-// Reference:
-//   US-03 Table Columns "Actions: View / Edit"
-//   US-05 Actions Menu, AC-7
-//   US-06 UI Requirements Actions Menu, AC-01, AC-09
-// ─────────────────────────────────────────────────────────────────────────────
-
 'use client'
 
 import {
@@ -45,9 +25,6 @@ import { Permission }    from '@/types/auth.types'
 
 import type { CompanyParty } from '@/types/party.types'
 
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface PartyActionsMenuProps {
   party:     Pick<CompanyParty, 'id' | 'partyName' | 'tin' | 'isActive'>
   companyId: string
@@ -72,9 +49,6 @@ interface MenuPosition {
 const MENU_WIDTH = 192
 const MENU_GAP = 6
 
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function PartyActionsMenu({ party }: PartyActionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null)
@@ -88,6 +62,7 @@ export function PartyActionsMenu({ party }: PartyActionsMenuProps) {
     const trigger = triggerRef.current
     if (!trigger) return
 
+    // Portal menu uses viewport coordinates so it is not clipped by table overflow.
     const rect = trigger.getBoundingClientRect()
     const viewportPadding = 8
     const left = Math.min(
