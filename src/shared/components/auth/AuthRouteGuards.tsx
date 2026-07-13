@@ -1,31 +1,12 @@
 'use client'
 
-import { useEffect, useSyncExternalStore } from 'react'
+import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { AlertTriangle, LockKeyhole, Loader2 } from 'lucide-react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 
 import { cn } from '@/shared/utils'
 import { useAuthStore } from '@/shared/store/auth.store'
 import { Permission } from '@/shared/types/auth.types'
-
-function routeWithNext(pathname: string | null) {
-  const next = pathname && pathname !== '/login' && pathname !== '/register'
-    ? pathname
-    : '/parties'
-
-  return `/login?next=${encodeURIComponent(next)}`
-}
-
-function getSafeNextPath() {
-  if (typeof window === 'undefined') return '/parties'
-
-  const next = new URLSearchParams(window.location.search).get('next')
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/parties'
-  if (next === '/login' || next === '/register') return '/parties'
-
-  return next
-}
 
 function subscribeAuthHydration(callback: () => void) {
   if (typeof window === 'undefined') return () => {}
@@ -91,16 +72,7 @@ function AccessDenied({ permission }: { permission?: Permission }) {
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const hydrated = useAuthHydrated()
-  const pathname = usePathname()
-  const router = useRouter()
   const session = useAuthStore(s => s.session)
-
-  useEffect(() => {
-    if (!hydrated) return
-    if (!session?.companyId) {
-      router.replace(routeWithNext(pathname))
-    }
-  }, [hydrated, pathname, router, session])
 
   if (!hydrated || !session?.companyId) return <RouteLoader />
 
@@ -124,27 +96,3 @@ export function PermissionGate({
   return <>{children}</>
 }
 
-export function PublicAuthRoute({ children }: { children: React.ReactNode }) {
-  const hydrated = useAuthHydrated()
-  const router = useRouter()
-  const session = useAuthStore(s => s.session)
-
-  useEffect(() => {
-    if (!hydrated) return
-    if (session?.companyId) {
-      router.replace(getSafeNextPath())
-    }
-  }, [hydrated, router, session])
-
-  if (!hydrated || session?.companyId) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-400">
-        <LockKeyhole className="h-5 w-5" strokeWidth={2} aria-hidden />
-      </div>
-    )
-  }
-
-  return <>{children}</>
-}
-
-export { getSafeNextPath }

@@ -61,42 +61,17 @@ export interface User {
   id: string
   name: string
   email: string
-  // Mock auth only. Do not store plain text passwords in a real backend.
-  password: string
   role: UserRole
   permissions: Permission[]
   companyId: string
   createdAt: string
 }
 
-export type Session = Omit<User, 'password'> | null
-
-export interface RegisterPayload {
-  name:      string
-  email:     string
-  password:  string
-  role:      UserRole
-  companyId: string
-}
-
-export interface LoginPayload {
-  email:    string
-  password: string
-}
-
-export interface AuthError {
-  message: string
-  code: 'INVALID_CREDENTIALS' | 'EMAIL_TAKEN' | 'MISSING_FIELDS'
-}
+export type Session = User | null
 
 export interface AuthState {
   session: Session
-  isLoading: boolean
-  error: AuthError | null
-
-  login:    (payload: LoginPayload)    => Promise<void>
-  register: (payload: RegisterPayload) => Promise<void>
-  logout:   () => void
-  clearError: () => void
+  setSession: (session: Session) => void
   hasPermission: (permission: Permission) => boolean
 }
+

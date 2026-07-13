@@ -1,11 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import {
   Building2,
-  LogOut,
   Moon,
   Plus,
   Sun,
@@ -53,15 +52,8 @@ function formatRole(role: string) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const router = useRouter()
   const session = useAuthStore(s => s.session)
-  const logout = useAuthStore(s => s.logout)
   const canCreate = useAuthStore(s => s.hasPermission(Permission.CREATE_PARTY))
-
-  const handleLogout = () => {
-    logout()
-    router.replace('/login')
-  }
 
   return (
     <div className="min-h-dvh bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
@@ -115,24 +107,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="border-t border-zinc-100 p-3 dark:border-zinc-800">
-            <div className="mb-3 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
-              <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {session?.name}
-              </p>
-              <p className="mt-0.5 truncate text-xs text-zinc-400 dark:text-zinc-500">
-                {session ? formatRole(session.role) : ''}
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex h-9 flex-1 items-center gap-2 rounded-lg px-3 text-sm font-medium text-red-700 transition-[background-color,transform] duration-150 active:scale-[0.97] hover:bg-red-50 hover:text-red-800 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
-              >
-                <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
-                Sign out
-              </button>
-              <ThemeToggle className="size-9" />
+            <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
+              <div className="min-w-0 flex-1 pr-2">
+                <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {session?.name}
+                </p>
+                <p className="mt-0.5 truncate text-xs text-zinc-400 dark:text-zinc-500">
+                  {session ? formatRole(session.role) : ''}
+                </p>
+              </div>
+              <ThemeToggle className="size-9 shrink-0" />
             </div>
           </div>
         </aside>
@@ -164,14 +148,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex items-center gap-1">
               <ThemeToggle className="size-9" />
-              <button
-                type="button"
-                onClick={handleLogout}
-                aria-label="Sign out"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition-[background-color,transform] duration-150 active:scale-[0.97] hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-              >
-                <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
-              </button>
             </div>
           </header>
 
